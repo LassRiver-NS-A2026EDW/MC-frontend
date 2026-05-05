@@ -1,0 +1,78 @@
+@if (book) {
+  <div class="p-6 max-w-5xl mx-auto">
+    <button (click)="goBack()" class="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
+      ← Volver al Catálogo
+    </button>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Cover -->
+      <div class="w-full lg:w-80 shrink-0">
+        <div class="aspect-[2/3] rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+          <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover">
+        </div>
+        @if (store.isAuthenticated()) {
+          <button (click)="store.toggleFavorite(book.id)"
+            class="w-full mt-4 py-2.5 rounded-lg font-medium transition-colors"
+            [class.bg-red-500]="isFavorite"
+            [class.text-white]="isFavorite"
+            [class.bg-primary]="!isFavorite"
+            [class.text-primary-foreground]="!isFavorite">
+            {{ isFavorite ? '❤️ Quitar de Favoritos' : '🤍 Agregar a Favoritos' }}
+          </button>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold text-foreground">{{ book.title }}</h1>
+        <p class="text-lg text-muted-foreground mt-1">{{ book.author }}</p>
+
+        <div class="flex items-center gap-4 mt-4">
+          <span class="text-yellow-500 text-lg">★ {{ book.rating }}</span>
+          <span class="text-muted-foreground">({{ book.reviewCount }} reseñas)</span>
+          @if (book.available) {
+            <span class="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm">Disponible</span>
+          } @else {
+            <span class="bg-destructive/10 text-destructive px-3 py-1 rounded-full text-sm">No disponible</span>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-6 p-4 bg-card border border-border rounded-xl">
+          <div><span class="text-xs text-muted-foreground">ISBN</span><p class="text-sm font-medium">{{ book.isbn }}</p></div>
+          <div><span class="text-xs text-muted-foreground">Categoría</span><p class="text-sm font-medium">{{ book.category }}</p></div>
+          <div><span class="text-xs text-muted-foreground">Idioma</span><p class="text-sm font-medium">{{ book.language }}</p></div>
+          <div><span class="text-xs text-muted-foreground">Páginas</span><p class="text-sm font-medium">{{ book.pages }}</p></div>
+          <div><span class="text-xs text-muted-foreground">Editorial</span><p class="text-sm font-medium">{{ book.publisher }}</p></div>
+          <div><span class="text-xs text-muted-foreground">Publicación</span><p class="text-sm font-medium">{{ book.publishDate }}</p></div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-semibold text-foreground mb-2">Descripción</h3>
+          <p class="text-muted-foreground leading-relaxed">{{ book.description }}</p>
+        </div>
+
+        <!-- Reviews -->
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold text-foreground mb-4">Reseñas ({{ reviews.length }})</h3>
+          <div class="space-y-4">
+            @for (review of reviews; track review.id) {
+              <div class="bg-card border border-border rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-medium text-foreground">{{ review.userName }}</span>
+                  <span class="text-xs text-muted-foreground">{{ review.date }}</span>
+                </div>
+                <div class="text-yellow-500 text-sm mb-2">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
+                <p class="text-sm text-muted-foreground">{{ review.comment }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="flex flex-col items-center justify-center py-16">
+    <p class="text-muted-foreground">Selecciona un libro del catálogo</p>
+    <button (click)="goBack()" class="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-lg">Ir al Catálogo</button>
+  </div>
+}

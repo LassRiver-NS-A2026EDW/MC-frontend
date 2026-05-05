@@ -1,0 +1,76 @@
+<div class="p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-foreground">💬 Mis Reseñas</h2>
+    <button (click)="showForm.set(!showForm())"
+      class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+      {{ showForm() ? 'Cancelar' : 'Nueva Reseña' }}
+    </button>
+  </div>
+
+  @if (showForm()) {
+    <div class="bg-card border border-border rounded-xl p-6 mb-6">
+      <h3 class="font-semibold text-foreground mb-4">Nueva Reseña</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Libro</label>
+          <select [(ngModel)]="selectedBookId"
+            class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground">
+            <option value="">Selecciona un libro</option>
+            @for (book of books; track book.id) {
+              <option [value]="book.id">{{ book.title }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Rating</label>
+          <div class="flex gap-1">
+            @for (star of [1,2,3,4,5]; track star) {
+              <button type="button" (click)="newRating.set(star)"
+                class="text-2xl transition-colors"
+                [class.text-yellow-500]="star <= newRating()"
+                [class.text-muted]="star > newRating()">
+                ★
+              </button>
+            }
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Comentario</label>
+          <textarea [(ngModel)]="newComment" rows="4" maxlength="500" placeholder="Escribe tu reseña (máx 500 caracteres)..."
+            class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"></textarea>
+          <p class="text-xs text-muted-foreground mt-1">{{ newComment().length }}/500</p>
+        </div>
+        <button (click)="submitReview()"
+          [disabled]="!selectedBookId() || !newComment()"
+          class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+          Publicar Reseña
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (userReviews.length === 0) {
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="text-6xl mb-4">📝</div>
+      <h3 class="text-xl font-semibold text-foreground mb-2">Sin reseñas</h3>
+      <p class="text-muted-foreground mb-6">Aún no has escrito ninguna reseña</p>
+      <button (click)="showForm.set(true)" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium">Escribir primera reseña</button>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (review of userReviews; track review.id) {
+        <div class="bg-card border border-border rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="font-medium text-foreground">{{ books.find(b => b.id === review.bookId)?.title || 'Libro' }}</span>
+              <span class="text-xs text-muted-foreground ml-2">{{ review.date }}</span>
+            </div>
+            <button (click)="deleteReview(review.id)" class="text-destructive hover:text-destructive/80 text-sm">Eliminar</button>
+          </div>
+          <div class="text-yellow-500 text-sm mb-2">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
+          <p class="text-sm text-muted-foreground">{{ review.comment }}</p>
+        </div>
+      }
+    </div>
+  }
+</div>

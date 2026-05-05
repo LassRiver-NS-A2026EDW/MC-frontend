@@ -1,9 +1,15 @@
-<div class="container">
-  <h1>📚 Modelos de Computación</h1>
-  <h2>Monorepo: Angular + Django</h2>
-
-  <div class="card" [class.success]="apiStatus() === 'ok'" [class.error]="apiStatus() === 'error'">
-    <h3>🔌 Estado del Backend</h3>
-    <p class="message">{{ apiMessage() }}</p>
+<div class="h-screen flex bg-background text-foreground overflow-hidden">
+  @if (store.currentView() !== 'login' && store.currentView() !== 'register') {
+  <app-sidebar />
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <app-topbar />
+    <div class="flex-1 overflow-auto">
+      <router-outlet />
+    </div>
   </div>
+  } @else {
+  <div class="flex-1 overflow-auto">
+    <router-outlet />
+  </div>
+  }
 </div>

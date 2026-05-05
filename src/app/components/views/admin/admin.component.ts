@@ -1,0 +1,140 @@
+import { Component, computed, signal } from '@angular/core';
+import { AppStore } from '../../../services/app-store.service';
+import { FormsModule } from '@angular/forms';
+import { Book } from '../../../models/models';
+
+@Component({
+  selector: 'app-admin',
+  imports: [FormsModule],
+  templateUrl: './admin.html',
+  styleUrl: './admin.css',
+})
+export class AdminComponent {
+  activeTab = signal<'dashboard' | 'books' | 'loans' | 'reviews'>('dashboard');
+
+  // Book form
+  showBookForm = signal(false);
+  editBook: any = signal(null);
+  bookForm = signal({
+    title: '',
+    author: '',
+    isbn: '',
+    category: '',
+    language: '',
+    publisher: '',
+    publishDate: '',
+    pages: 0,
+    description: '',
+    coverUrl: '',
+    rating: 0,
+    available: true,
+    reviewCount: 0,
+  });
+
+  // Loan form
+  showLoanForm = signal(false);
+  loanForm = signal({ bookId: '', userId: '', userName: '', dueDate: '' });
+
+  constructor(public store: AppStore) {}
+
+  get stats() {
+    return this.store.stats();
+  }
+  get loans() {
+    return this.store.loans();
+  }
+  get flaggedReviews() {
+    return this.store.flaggedReviews();
+  }
+
+  readonly categories = [
+    'Ficción',
+    'Romance',
+    'Clásicos',
+    'Misterio',
+    'Cuentos',
+    'Ficción Psicológica',
+  ];
+
+  // ─── Books CRUD ─────────────────────────────────
+  setActiveTab(tab: string): void {
+    this.activeTab.set(tab as 'dashboard' | 'books' | 'loans' | 'reviews');
+  }
+
+  openNewBook(): void {
+    this.editBook.set(null);
+    this.bookForm.set({
+      title: '',
+      author: '',
+      isbn: '',
+      category: '',
+      language: 'Español',
+      publisher: '',
+      publishDate: '',
+      pages: 0,
+      description: '',
+      coverUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop',
+      rating: 0,
+      available: true,
+      reviewCount: 0,
+    });
+    this.showBookForm.set(true);
+  }
+
+  openEditBook(book: Book): void {
+    this.editBook.set(book);
+    this.bookForm.set({ ...book });
+    this.showBookForm.set(true);
+  }
+
+  saveBook(): void {
+    const form = this.bookForm();
+    if (this.editBook()) {
+      this.store.updateBook(this.editBook().id, form);
+    } else {
+      this.store.addBook(form);
+    }
+    this.showBookForm.set(false);
+  }
+
+  deleteBook(bookId: string): void {
+    if (confirm('¿Eliminar este libro?')) {
+      this.store.deleteBook(bookId);
+    }
+  }
+
+  // ─── Loans CRUD ─────────────────────────────────
+  openNewLoan(): void {
+    this.loanForm.set({ bookId: '', userId: '', userName: '', dueDate: '' });
+    this.showLoanForm.set(true);
+  }
+
+  saveLoan(): void {
+    const form = this.loanForm();
+    const book = this.store.books().find((b) => b.id === form.bookId);
+    if (book && form.userId && form.dueDate) {
+      this.store.addLoan({
+        bookId: form.bookId,
+        bookTitle: book.title,
+        userId: form.userId,
+        userName: form.userName || 'Usuario',
+        loanDate: new Date().toISOString().split('T')[0],
+        dueDate: form.dueDate,
+        status: 'active',
+      });
+      this.showLoanForm.set(false);
+    }
+  }
+
+  returnLoan(loanId: string): void {
+    this.store.updateLoan(loanId, {
+      status: 'returned',
+      returnDate: new Date().toISOString().split('T')[0],
+    });
+  }
+
+  // ─── Reviews ────────────────────────────────────
+  unflagReview(reviewId: string): void {
+    this.store.unflagReview(reviewId);
+  }
+}

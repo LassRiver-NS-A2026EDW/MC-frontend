@@ -1,0 +1,39 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold text-foreground mb-6">❤️ Mis Favoritos</h2>
+
+  @if (favoriteBooks.length === 0) {
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="text-6xl mb-4">💔</div>
+      <h3 class="text-xl font-semibold text-foreground mb-2">No tienes favoritos</h3>
+      <p class="text-muted-foreground mb-6">Explora el catálogo y agrega libros a tus favoritos</p>
+      <a routerLink="/catalog" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Ir al Catálogo</a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (book of favoriteBooks; track book.id) {
+        <div (click)="viewBookDetail(book.id)"
+          class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer">
+          <div class="h-48 overflow-hidden relative">
+            <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <button (click)="store.toggleFavorite(book.id); $event.stopPropagation()"
+              class="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm">
+              <span class="text-red-500">❤️</span>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-foreground truncate">{{ book.title }}</h3>
+            <p class="text-sm text-muted-foreground mt-1">{{ book.author }}</p>
+            <div class="flex items-center justify-between mt-3">
+              <span class="text-yellow-500 text-sm">★ {{ book.rating }}</span>
+              @if (book.available) {
+                <span class="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Disponible</span>
+              } @else {
+                <span class="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">No disponible</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

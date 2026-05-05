@@ -1,0 +1,112 @@
+<div class="flex-1 overflow-auto">
+  <!-- Hero Section -->
+  <div class="relative h-96 bg-gradient-to-br from-[#1898A8] via-[#1888A8] to-[#182858] flex items-center justify-center text-white overflow-hidden">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="absolute inset-0 opacity-10">
+      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="hero-waves" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+            <path d="M0 100 Q 50 50, 100 100 T 200 100" stroke="white" stroke-width="2" fill="none"/>
+            <path d="M0 120 Q 50 70, 100 120 T 200 120" stroke="white" stroke-width="2" fill="none"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-waves)"/>
+      </svg>
+    </div>
+    <div class="relative z-10 text-center px-6 max-w-4xl">
+      <div class="h-24 w-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold mx-auto mb-6">LR</div>
+      <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">Bienvenido a LassRiver NS</h1>
+      <p class="text-xl md:text-2xl mb-8 opacity-95">Tu biblioteca digital premium con la mejor colección de literatura en español</p>
+      @if (!store.isAuthenticated()) {
+        <div class="flex gap-4 justify-center">
+          <a routerLink="/login" class="px-8 py-3 bg-white text-[#182858] rounded-lg font-semibold hover:bg-white/90 transition-colors">Iniciar Sesión</a>
+          <a routerLink="/register" class="px-8 py-3 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors">Registrarse</a>
+        </div>
+      } @else {
+        <a routerLink="/catalog" class="inline-block px-8 py-3 bg-white text-[#182858] rounded-lg font-semibold hover:bg-white/90 transition-colors">Explorar Catálogo</a>
+      }
+    </div>
+  </div>
+
+  <div class="p-6 space-y-8">
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-card border border-border rounded-xl p-6 flex items-center gap-4">
+        <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xl">📚</div>
+        <div>
+          <p class="text-2xl font-bold text-foreground">{{ stats().totalBooks }}</p>
+          <p class="text-sm text-muted-foreground">Libros Totales</p>
+        </div>
+      </div>
+      <div class="bg-card border border-border rounded-xl p-6 flex items-center gap-4">
+        <div class="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent text-xl">📈</div>
+        <div>
+          <p class="text-2xl font-bold text-foreground">{{ stats().availableBooks }}</p>
+          <p class="text-sm text-muted-foreground">Disponibles</p>
+        </div>
+      </div>
+      <div class="bg-card border border-border rounded-xl p-6 flex items-center gap-4">
+        <div class="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary text-xl">👥</div>
+        <div>
+          <p class="text-2xl font-bold text-foreground">{{ stats().categories }}</p>
+          <p class="text-sm text-muted-foreground">Categorías</p>
+        </div>
+      </div>
+      <div class="bg-card border border-border rounded-xl p-6 flex items-center gap-4">
+        <div class="h-12 w-12 rounded-lg bg-yellow-500/10 flex items-center justify-center text-yellow-500 text-xl">⭐</div>
+        <div>
+          <p class="text-2xl font-bold text-foreground">{{ stats().avgRating }}</p>
+          <p class="text-sm text-muted-foreground">Rating Promedio</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Books -->
+    <section>
+      <h2 class="text-2xl font-bold text-foreground mb-6">🌟 Destacados</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (book of featuredBooks(); track book.id) {
+          <a [routerLink]="'/catalog'" class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer">
+            <div class="h-48 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
+              <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="p-4">
+              <h3 class="font-semibold text-foreground truncate">{{ book.title }}</h3>
+              <p class="text-sm text-muted-foreground mt-1">{{ book.author }}</p>
+              <div class="flex items-center justify-between mt-3">
+                <span class="text-yellow-500 text-sm">★ {{ book.rating }}</span>
+                @if (book.available) {
+                  <span class="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Disponible</span>
+                } @else {
+                  <span class="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">No disponible</span>
+                }
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+
+    <!-- Recent Books -->
+    <section>
+      <h2 class="text-2xl font-bold text-foreground mb-6">📖 Recién Agregados</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (book of recentBooks(); track book.id) {
+          <a [routerLink]="'/catalog'" class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer">
+            <div class="h-48 bg-gradient-to-br from-secondary/20 to-primary/20 overflow-hidden">
+              <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="p-4">
+              <h3 class="font-semibold text-foreground truncate">{{ book.title }}</h3>
+              <p class="text-sm text-muted-foreground mt-1">{{ book.author }}</p>
+              <div class="flex items-center justify-between mt-3">
+                <span class="text-yellow-500 text-sm">★ {{ book.rating }}</span>
+                <span class="text-xs text-muted-foreground">{{ book.reviewCount }} reseñas</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,394 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold text-foreground mb-6">📊 Administración</h2>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 mb-6 border-b border-border pb-2">
+    @for (tab of [{id:'dashboard', label:'Dashboard', icon:'📈'}, {id:'books', label:'Libros',
+    icon:'📚'}, {id:'loans', label:'Préstamos', icon:'📋'}, {id:'reviews', label:'Reseñas',
+    icon:'💬'}]; track tab.id) {
+    <button
+      (click)="setActiveTab(tab.id)"
+      class="px-4 py-2 rounded-t-lg text-sm font-medium transition-colors"
+      [class.bg-primary]="activeTab() === tab.id"
+      [class.text-primary-foreground]="activeTab() === tab.id"
+      [class.text-muted-foreground]="activeTab() !== tab.id"
+      [class.hover:text-foreground]="activeTab() !== tab.id"
+    >
+      {{ tab.icon }} {{ tab.label }}
+    </button>
+    }
+  </div>
+
+  <!-- Dashboard Tab -->
+  @if (activeTab() === 'dashboard') {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-card border border-border rounded-xl p-6">
+      <p class="text-3xl font-bold text-foreground">{{ stats.totalBooks }}</p>
+      <p class="text-sm text-muted-foreground mt-1">Total Libros</p>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-6">
+      <p class="text-3xl font-bold text-foreground">{{ stats.availableBooks }}</p>
+      <p class="text-sm text-muted-foreground mt-1">Disponibles</p>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-6">
+      <p class="text-3xl font-bold text-foreground">{{ stats.activeLoans }}</p>
+      <p class="text-sm text-muted-foreground mt-1">Préstamos Activos</p>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-6">
+      <p class="text-3xl font-bold text-destructive">{{ stats.overdueLoans }}</p>
+      <p class="text-sm text-muted-foreground mt-1">Vencidos</p>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-card border border-border rounded-xl p-6">
+      <h3 class="font-semibold text-foreground mb-4">📖 Últimos Libros</h3>
+      <div class="space-y-3">
+        @for (book of store.books().slice(0, 5); track book.id) {
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-8 rounded bg-muted overflow-hidden">
+            <img [src]="book.coverUrl" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-foreground truncate">{{ book.title }}</p>
+            <p class="text-xs text-muted-foreground">{{ book.author }}</p>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-6">
+      <h3 class="font-semibold text-foreground mb-4">📋 Préstamos Recientes</h3>
+      <div class="space-y-3">
+        @for (loan of loans.slice(0, 5); track loan.id) {
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-foreground">{{ loan.bookTitle }}</p>
+            <p class="text-xs text-muted-foreground">{{ loan.userName }}</p>
+          </div>
+          <span
+            class="text-xs px-2 py-0.5 rounded-full"
+            [class.bg-accent/10]="loan.status === 'active'"
+            [class.text-accent]="loan.status === 'active'"
+            [class.bg-destructive/10]="loan.status === 'overdue'"
+            [class.text-destructive]="loan.status === 'overdue'"
+            [class.bg-muted]="loan.status === 'returned'"
+            [class.text-muted-foreground]="loan.status === 'returned'"
+          >
+            {{ loan.status === 'active' ? 'Activo' : loan.status === 'overdue' ? 'Vencido' :
+            'Devuelto' }}
+          </span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Books Tab -->
+  @if (activeTab() === 'books') {
+  <div class="flex justify-between items-center mb-4">
+    <p class="text-sm text-muted-foreground">{{ store.books().length }} libros</p>
+    <button
+      (click)="openNewBook()"
+      class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+    >
+      + Nuevo Libro
+    </button>
+  </div>
+
+  @if (showBookForm()) {
+  <div class="bg-card border border-border rounded-xl p-6 mb-6">
+    <h3 class="font-semibold text-foreground mb-4">{{ editBook() ? 'Editar' : 'Nuevo' }} Libro</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Título</label
+        ><input
+          type="text"
+          [ngModel]="bookForm().title"
+          (ngModelChange)="bookForm.set({...bookForm(), title: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Autor</label
+        ><input
+          type="text"
+          [ngModel]="bookForm().author"
+          (ngModelChange)="bookForm.set({...bookForm(), author: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">ISBN</label
+        ><input
+          type="text"
+          [ngModel]="bookForm().isbn"
+          (ngModelChange)="bookForm.set({...bookForm(), isbn: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Categoría</label
+        ><select
+          [ngModel]="bookForm().category"
+          (ngModelChange)="bookForm.set({...bookForm(), category: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        >
+          @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Páginas</label
+        ><input
+          type="number"
+          [ngModel]="bookForm().pages"
+          (ngModelChange)="bookForm.set({...bookForm(), pages: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Disponible</label>
+        <label class="flex items-center gap-2 mt-2">
+          <input
+            type="checkbox"
+            [checked]="bookForm().available"
+            (change)="bookForm.set({...bookForm(), available: !bookForm().available})"
+            class="rounded"
+          />
+          <span class="text-sm text-foreground">{{ bookForm().available ? 'Sí' : 'No' }}</span>
+        </label>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-xs text-muted-foreground mb-1">Descripción</label
+        ><textarea
+          [ngModel]="bookForm().description"
+          (ngModelChange)="bookForm.set({...bookForm(), description: $event})"
+          rows="3"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        ></textarea>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-4">
+      <button
+        (click)="saveBook()"
+        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+      >
+        Guardar
+      </button>
+      <button
+        (click)="showBookForm.set(false)"
+        class="px-4 py-2 bg-muted text-foreground rounded-lg text-sm font-medium"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+  }
+
+  <div class="bg-card border border-border rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-border bg-muted/50">
+          <th class="text-left p-3 text-muted-foreground font-medium">Título</th>
+          <th class="text-left p-3 text-muted-foreground font-medium">Autor</th>
+          <th class="text-left p-3 text-muted-foreground font-medium">Categoría</th>
+          <th class="text-center p-3 text-muted-foreground font-medium">Rating</th>
+          <th class="text-center p-3 text-muted-foreground font-medium">Disponible</th>
+          <th class="text-right p-3 text-muted-foreground font-medium">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (book of store.books(); track book.id) {
+        <tr class="border-b border-border hover:bg-muted/30">
+          <td class="p-3 font-medium text-foreground">{{ book.title }}</td>
+          <td class="p-3 text-muted-foreground">{{ book.author }}</td>
+          <td class="p-3 text-muted-foreground">{{ book.category }}</td>
+          <td class="p-3 text-center text-yellow-500">★ {{ book.rating }}</td>
+          <td class="p-3 text-center">
+            <span
+              class="text-xs px-2 py-0.5 rounded-full"
+              [class.bg-accent/10]="book.available"
+              [class.text-accent]="book.available"
+              [class.bg-destructive/10]="!book.available"
+              [class.text-destructive]="!book.available"
+              >{{ book.available ? 'Sí' : 'No' }}</span
+            >
+          </td>
+          <td class="p-3 text-right">
+            <button
+              (click)="openEditBook(book)"
+              class="text-primary hover:text-primary/80 text-xs mr-2"
+            >
+              Editar
+            </button>
+            <button
+              (click)="deleteBook(book.id)"
+              class="text-destructive hover:text-destructive/80 text-xs"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- Loans Tab -->
+  @if (activeTab() === 'loans') {
+  <div class="flex justify-between items-center mb-4">
+    <p class="text-sm text-muted-foreground">{{ loans.length }} préstamos</p>
+    <button
+      (click)="openNewLoan()"
+      class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+    >
+      + Nuevo Préstamo
+    </button>
+  </div>
+
+  @if (showLoanForm()) {
+  <div class="bg-card border border-border rounded-xl p-6 mb-6">
+    <h3 class="font-semibold text-foreground mb-4">Nuevo Préstamo</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Libro</label>
+        <select
+          [ngModel]="loanForm().bookId"
+          (ngModelChange)="loanForm.set({...loanForm(), bookId: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        >
+          <option value="">Seleccionar...</option>
+          @for (book of store.books().filter(b => b.available); track book.id) {
+          <option [value]="book.id">{{ book.title }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">ID Usuario</label
+        ><input
+          type="text"
+          [ngModel]="loanForm().userId"
+          (ngModelChange)="loanForm.set({...loanForm(), userId: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Nombre Usuario</label
+        ><input
+          type="text"
+          [ngModel]="loanForm().userName"
+          (ngModelChange)="loanForm.set({...loanForm(), userName: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-foreground mb-1">Fecha Devolución</label
+        ><input
+          type="date"
+          [ngModel]="loanForm().dueDate"
+          (ngModelChange)="loanForm.set({...loanForm(), dueDate: $event})"
+          class="w-full px-3 py-2 rounded-lg border border-input bg-input-background text-foreground text-sm"
+        />
+      </div>
+    </div>
+    <div class="flex gap-3 mt-4">
+      <button
+        (click)="saveLoan()"
+        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+      >
+        Guardar
+      </button>
+      <button
+        (click)="showLoanForm.set(false)"
+        class="px-4 py-2 bg-muted text-foreground rounded-lg text-sm font-medium"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+  }
+
+  <div class="bg-card border border-border rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-border bg-muted/50">
+          <th class="text-left p-3 text-muted-foreground font-medium">Libro</th>
+          <th class="text-left p-3 text-muted-foreground font-medium">Usuario</th>
+          <th class="text-left p-3 text-muted-foreground font-medium">Inicio</th>
+          <th class="text-left p-3 text-muted-foreground font-medium">Vence</th>
+          <th class="text-center p-3 text-muted-foreground font-medium">Estado</th>
+          <th class="text-right p-3 text-muted-foreground font-medium">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (loan of loans; track loan.id) {
+        <tr class="border-b border-border hover:bg-muted/30">
+          <td class="p-3 font-medium text-foreground">{{ loan.bookTitle }}</td>
+          <td class="p-3 text-muted-foreground">{{ loan.userName }}</td>
+          <td class="p-3 text-muted-foreground">{{ loan.loanDate }}</td>
+          <td class="p-3 text-muted-foreground">{{ loan.dueDate }}</td>
+          <td class="p-3 text-center">
+            <span
+              class="text-xs px-2 py-0.5 rounded-full"
+              [class.bg-accent/10]="loan.status === 'active'"
+              [class.text-accent]="loan.status === 'active'"
+              [class.bg-destructive/10]="loan.status === 'overdue'"
+              [class.text-destructive]="loan.status === 'overdue'"
+              [class.bg-muted]="loan.status === 'returned'"
+              [class.text-muted-foreground]="loan.status === 'returned'"
+            >
+              {{ loan.status === 'active' ? 'Activo' : loan.status === 'overdue' ? 'Vencido' :
+              'Devuelto' }}
+            </span>
+          </td>
+          <td class="p-3 text-right">
+            @if (loan.status !== 'returned') {
+            <button (click)="returnLoan(loan.id)" class="text-accent hover:text-accent/80 text-xs">
+              Marcar devuelto
+            </button>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- Reviews Tab -->
+  @if (activeTab() === 'reviews') {
+  <h3 class="font-semibold text-foreground mb-4">Reseñas Marcadas ({{ flaggedReviews.length }})</h3>
+  @if (flaggedReviews.length === 0) {
+  <div class="flex flex-col items-center justify-center py-16">
+    <div class="text-6xl mb-4">✅</div>
+    <h3 class="text-xl font-semibold text-foreground mb-2">Sin reseñas marcadas</h3>
+    <p class="text-muted-foreground">No hay reseñas reportadas pendientes de moderación</p>
+  </div>
+  } @else {
+  <div class="space-y-4">
+    @for (review of flaggedReviews; track review.id) {
+    <div class="bg-card border border-destructive/30 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <span class="font-medium text-foreground">{{ review.userName }}</span>
+          <span class="text-xs text-muted-foreground ml-2">{{ review.date }}</span>
+        </div>
+        <button (click)="unflagReview(review.id)" class="text-accent hover:text-accent/80 text-sm">
+          ✅ Aprobar
+        </button>
+      </div>
+      <div class="text-yellow-500 text-sm mb-2">
+        {{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}
+      </div>
+      <p class="text-sm text-muted-foreground">{{ review.comment }}</p>
+      <div class="mt-2 p-2 bg-destructive/5 rounded-lg">
+        <p class="text-xs text-destructive">🚩 Motivo: {{ review.flagReason || 'Reportado' }}</p>
+      </div>
+    </div>
+    }
+  </div>
+  } }
+</div>

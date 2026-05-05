@@ -1,0 +1,55 @@
+<div class="p-6 max-w-2xl mx-auto">
+  <h2 class="text-2xl font-bold text-foreground mb-8">👤 Mi Perfil</h2>
+
+  @if (user) {
+    <div class="bg-card border border-border rounded-2xl overflow-hidden">
+      <div class="h-32 bg-gradient-to-r from-primary to-secondary"></div>
+      <div class="px-6 pb-6">
+        <div class="flex items-end -mt-12 mb-6">
+          <div class="h-24 w-24 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold border-4 border-card shadow-lg">
+            {{ user.name.charAt(0) }}
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
+              <input type="text" [(ngModel)]="editName"
+                class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-foreground mb-1.5">Email</label>
+              <input type="email" [(ngModel)]="editEmail"
+                class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+            <div class="flex gap-3">
+              <button (click)="saveProfile()" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Guardar</button>
+              <button (click)="cancelEdit()" class="px-6 py-2.5 bg-muted text-foreground rounded-lg font-medium hover:opacity-80 transition-opacity">Cancelar</button>
+            </div>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            <div>
+              <p class="text-sm text-muted-foreground">Nombre</p>
+              <p class="text-lg font-medium text-foreground">{{ user.name }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">Email</p>
+              <p class="text-lg font-medium text-foreground">{{ user.email }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-muted-foreground">Rol</p>
+              <p class="text-lg font-medium">
+                @if (user.role === 'admin') { <span class="text-destructive">Administrador</span> }
+                @else if (user.role === 'librarian') { <span class="text-primary">Bibliotecario</span> }
+                @else { <span class="text-accent">Usuario</span> }
+              </p>
+            </div>
+            <button (click)="startEditing()" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Editar Perfil</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

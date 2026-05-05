@@ -1,0 +1,12 @@
+<div class="flex items-center gap-1">
+  @for (star of stars; track star) {
+    <button type="button" (click)="setRating(star)"
+      [class.cursor-default]="readonly()"
+      class="transition-colors {{ getSizeClass() }} {{ getStarClass(star) }}">
+      ★
+    </button>
+  }
+  @if (showLabel()) {
+    <span class="text-sm text-muted-foreground ml-2">{{ rating() }}</span>
+  }
+</div>
