@@ -1,63 +1,83 @@
-<div [class.w-20]="store.sidebarCollapsed()" [class.w-64]="!store.sidebarCollapsed()"
-  class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300">
-
+<div
+  [class.w-20]="store.sidebarCollapsed()"
+  [class.w-64]="!store.sidebarCollapsed()"
+  class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300"
+>
   <div class="p-6 border-b border-sidebar-border">
     <div class="flex items-center justify-between mb-1">
       @if (!store.sidebarCollapsed()) {
-        <div class="flex items-center gap-2">
-          <div class="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">LR</div>
-          <span class="font-bold text-sidebar-foreground">LassRiver</span>
+      <div class="flex items-center gap-2">
+        <div
+          class="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold"
+        >
+          LR
         </div>
+        <span class="font-bold text-sidebar-foreground">LassRiver</span>
+      </div>
       }
-      <button (click)="store.toggleSidebar()" class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors ml-auto">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sidebar-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <button
+        (click)="store.toggleSidebar()"
+        class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors ml-auto"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 text-sidebar-foreground"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
       </button>
     </div>
     @if (!store.sidebarCollapsed()) {
-      <p class="text-xs text-muted-foreground mt-2">Biblioteca Digital Premium</p>
+    <p class="text-xs text-muted-foreground mt-2">Biblioteca Digital Premium</p>
     }
   </div>
 
   <nav class="flex-1 p-4 space-y-2">
-    @for (item of navItems; track item.id) {
-      @if (canAccess(item.roles)) {
-        <button (click)="navigate(item.id)"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
-          [class.bg-sidebar-primary]="store.currentView() === item.id"
-          [class.text-sidebar-primary-foreground]="store.currentView() === item.id"
-          [class.text-sidebar-foreground]="store.currentView() !== item.id"
-          [class.hover:bg-sidebar-accent]="store.currentView() !== item.id"
-          [class.shadow-sm]="store.currentView() === item.id"
-          [class.justify-center]="store.sidebarCollapsed()">
-          <span class="text-lg shrink-0">
-            @switch (item.icon) {
-              @case ('home') { 🏠 }
-              @case ('book-open') { 📖 }
-              @case ('heart') { ❤️ }
-              @case ('message-square') { 💬 }
-              @case ('user') { 👤 }
-              @case ('layout-dashboard') { 📊 }
-            }
-          </span>
-          @if (!store.sidebarCollapsed()) {
-            <span>{{ item.label }}</span>
-          }
-        </button>
+    @for (item of navItems; track item.id) { @if (canAccess(item.roles)) {
+    <button
+      (click)="navigate(item.id)"
+      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+      [class.bg-sidebar-primary]="isActive(item.id)"
+      [class.text-sidebar-primary-foreground]="isActive(item.id)"
+      [class.text-sidebar-foreground]="!isActive(item.id)"
+      [class.hover:bg-sidebar-accent]="!isActive(item.id)"
+      [class.shadow-sm]="isActive(item.id)"
+      [class.justify-center]="store.sidebarCollapsed()"
+    >
+      <span class="text-lg shrink-0">
+        @switch (item.icon) { @case ('home') { 🏠 } @case ('book-open') { 📖 } @case ('heart') { ❤️
+        } @case ('message-square') { 💬 } @case ('user') { 👤 } @case ('layout-dashboard') { 📊 } }
+      </span>
+      @if (!store.sidebarCollapsed()) {
+      <span>{{ item.label }}</span>
       }
-    }
+    </button>
+    } }
   </nav>
 
   @if (!store.sidebarCollapsed() && store.currentUser()) {
-    <div class="p-4 border-t border-sidebar-border">
-      <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
-        <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
-          {{ getUserInitial() }}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-sidebar-foreground truncate">{{ store.currentUser()?.name }}</p>
-          <p class="text-xs text-muted-foreground truncate">{{ store.currentUser()?.role }}</p>
-        </div>
+  <div class="p-4 border-t border-sidebar-border">
+    <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
+      <div
+        class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold"
+      >
+        {{ getUserInitial() }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-sidebar-foreground truncate">
+          {{ store.currentUser()?.name }}
+        </p>
+        <p class="text-xs text-muted-foreground truncate">{{ store.currentUser()?.role }}</p>
       </div>
     </div>
+  </div>
   }
 </div>

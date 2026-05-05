@@ -1,6 +1,6 @@
 import { Component, effect, Inject, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { AppStore } from './services/app-store.service';
 import { SidebarComponent } from './components/layout/sidebar/sidebar.component';
 import { TopbarComponent } from './components/layout/topbar/topbar.component';
@@ -13,6 +13,7 @@ import { TopbarComponent } from './components/layout/topbar/topbar.component';
 })
 export class App {
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
   constructor(public store: AppStore) {
     effect(() => {
@@ -25,5 +26,9 @@ export class App {
         }
       }
     });
+  }
+
+  get showSidebar(): boolean {
+    return !this.router.url.includes('/login') && !this.router.url.includes('/register');
   }
 }

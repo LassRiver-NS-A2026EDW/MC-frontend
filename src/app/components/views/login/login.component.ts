@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
 
@@ -9,6 +10,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.css',
 })
 export class LoginComponent {
+  private router = inject(Router);
   email = signal('');
   password = signal('');
   error = signal('');
@@ -21,8 +23,14 @@ export class LoginComponent {
       return;
     }
     const success = this.store.login(this.email(), this.password());
-    if (!success) {
+    if (success) {
+      this.router.navigate(['/home']);
+    } else {
       this.error.set('Credenciales inválidas');
     }
+  }
+
+  goToRegister(): void {
+    this.router.navigate(['/register']);
   }
 }

@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
 
@@ -9,6 +10,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './register.css',
 })
 export class RegisterComponent {
+  private router = inject(Router);
   name = signal('');
   email = signal('');
   password = signal('');
@@ -31,8 +33,14 @@ export class RegisterComponent {
       return;
     }
     const success = this.store.register(this.name(), this.email(), this.password());
-    if (!success) {
+    if (success) {
+      this.router.navigate(['/home']);
+    } else {
       this.error.set('El email ya está registrado');
     }
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 }

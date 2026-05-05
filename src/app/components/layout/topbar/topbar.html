@@ -1,15 +1,23 @@
 <header class="h-16 border-b border-border bg-background flex items-center justify-between px-6">
   <h2 class="text-lg font-semibold text-foreground">{{ getViewTitle() }}</h2>
   <div class="flex items-center gap-4">
-    <button (click)="store.toggleTheme()" class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+    <button
+      (click)="store.toggleTheme()"
+      class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+    >
       @if (store.theme() === 'dark') {
-        <span>☀️</span>
+      <span>☀️</span>
       } @else {
-        <span>🌙</span>
+      <span>🌙</span>
       }
     </button>
     @if (store.isAuthenticated()) {
-      <button (click)="store.logout()" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Cerrar Sesión</button>
+    <button
+      (click)="store.logout(); router.navigate(['/home'])"
+      class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+    >
+      Cerrar Sesión
+    </button>
     }
   </div>
 </header>

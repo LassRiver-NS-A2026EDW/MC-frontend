@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 
 @Component({
@@ -8,6 +9,8 @@ import { AppStore } from '../../../services/app-store.service';
   styleUrl: './sidebar.css',
 })
 export class SidebarComponent {
+  private router = inject(Router);
+
   constructor(public store: AppStore) {}
 
   navItems = [
@@ -31,7 +34,11 @@ export class SidebarComponent {
   }
 
   navigate(view: string): void {
-    this.store.navigate(view as any);
+    this.router.navigate([`/${view}`]);
+  }
+
+  isActive(view: string): boolean {
+    return this.router.url === `/${view}` || this.router.url.startsWith(`/${view}`);
   }
 
   getUserInitial(): string {
