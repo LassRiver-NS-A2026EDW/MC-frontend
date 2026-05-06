@@ -23,11 +23,11 @@ export class ReviewsComponent {
   get userReviews() { return this.store.userReviews(); }
   get books() { return this.store.books(); }
 
-  getBook(bookId: string) {
-    return this.books.find(b => b.id === bookId);
+  getBook(bookId: string | number) {
+    return this.books.find(b => String(b.id) === String(bookId));
   }
 
-  handleBookClick(bookId: string): void {
+  handleBookClick(bookId: string | number): void {
     const book = this.getBook(bookId);
     if (book) {
       this.store.selectBook(book);

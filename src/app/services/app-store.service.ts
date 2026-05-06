@@ -1,16 +1,19 @@
-import { Injectable, signal, computed, Inject, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Book, Review, User, Loan, AppView } from '../models/models';
-import { mockBooks, mockReviews, mockUsers, mockLoans } from '../data/mock-data';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
+  private api = inject(ApiService);
+  private platformId = inject(PLATFORM_ID);
+
   // ─── State ──────────────────────────────────────────────
   readonly currentUser = signal<User | null>(null);
-  readonly books = signal<Book[]>(mockBooks);
-  readonly reviews = signal<Review[]>(mockReviews);
-  readonly loans = signal<Loan[]>(mockLoans);
-  readonly favorites = signal<string[]>([]);
+  readonly books = signal<Book[]>([]);
+  readonly reviews = signal<Review[]>([]);
+  readonly loans = signal<Loan[]>([]);
+  readonly favorites = signal<number[]>([]);
   readonly searchQuery = signal('');
   readonly categoryFilter = signal('all');
   readonly languageFilter = signal('all');
@@ -20,7 +23,10 @@ export class AppStore {
   readonly selectedBook = signal<Book | null>(null);
   readonly sidebarCollapsed = signal(false);
   readonly theme = signal<'light' | 'dark'>('dark');
-  private platformId = inject(PLATFORM_ID);
+
+  // Loading/error state
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   // ─── Computed ───────────────────────────────────────────
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
@@ -51,54 +57,153 @@ export class AppStore {
 
   readonly favoriteBooks = computed(() => {
     const favIds = this.favorites();
-    return this.books().filter((b) => favIds.includes(b.id));
+    return this.books().filter((b) => favIds.includes(Number(b.id)));
   });
 
   readonly userReviews = computed(() => {
     const user = this.currentUser();
     if (!user) return [];
-    return this.reviews().filter((r) => r.userId === user.id);
+    return this.reviews().filter((r) => String(r.userId) === String(user.id));
   });
 
   readonly flaggedReviews = computed(() => this.reviews().filter((r) => r.flagged));
 
   readonly stats = computed(() => {
     const allBooks = this.books();
+    const allLoans = this.loans();
     return {
       totalBooks: allBooks.length,
       availableBooks: allBooks.filter((b) => b.available).length,
       categories: new Set(allBooks.map((b) => b.category)).size,
-      avgRating: (allBooks.reduce((acc, b) => acc + b.rating, 0) / allBooks.length).toFixed(1),
-      totalUsers: mockUsers.length,
-      totalLoans: this.loans().length,
-      activeLoans: this.loans().filter((l) => l.status === 'active').length,
-      overdueLoans: this.loans().filter((l) => l.status === 'overdue').length,
+      avgRating: allBooks.length > 0
+        ? (allBooks.reduce((acc, b) => acc + b.rating, 0) / allBooks.length).toFixed(1)
+        : '0.0',
+      totalUsers: 0,
+      totalLoans: allLoans.length,
+      activeLoans: allLoans.filter((l) => l.status === 'active').length,
+      overdueLoans: allLoans.filter((l) => l.status === 'overdue').length,
     };
   });
 
-  // ─── Auth ───────────────────────────────────────────────
-  login(email: string, _password: string): boolean {
-    const user = mockUsers.find((u) => u.email === email);
-    if (user) {
-      this.currentUser.set(user);
-      this.currentView.set('home');
-      return true;
+  constructor() {
+    // Only load data in the browser (not during SSR pre-render)
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadBooks();
+      this.loadReviews();
+      this.tryRehydrate();
     }
-    return false;
   }
 
-  register(name: string, email: string, _password: string): boolean {
-    if (mockUsers.find((u) => u.email === email)) return false;
-    const newUser: User = { id: `u${Date.now()}`, name, email, role: 'user' };
-    mockUsers.push(newUser);
-    this.currentUser.set(newUser);
-    this.currentView.set('home');
-    return true;
+  // ─── Data Loading ───────────────────────────────────────
+
+  loadBooks(): void {
+    this.api.getBooks().subscribe({
+      next: (books) => this.books.set(books),
+      error: (err) => console.error('Error cargando libros:', err),
+    });
+  }
+
+  loadReviews(): void {
+    this.api.getReviews().subscribe({
+      next: (reviews) => this.reviews.set(reviews),
+      error: (err) => console.error('Error cargando reseñas:', err),
+    });
+  }
+
+  loadLoans(): void {
+    this.api.getLoans().subscribe({
+      next: (loans) => this.loans.set(loans),
+      error: (err) => console.error('Error cargando préstamos:', err),
+    });
+  }
+
+  loadFavorites(): void {
+    this.api.getFavorites().subscribe({
+      next: (favs) => this.favorites.set(favs.map((f) => f.bookId)),
+      error: (err) => console.error('Error cargando favoritos:', err),
+    });
+  }
+
+  private tryRehydrate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+
+    this.api.me().subscribe({
+      next: (user) => {
+        this.currentUser.set(user);
+        this.loadFavorites();
+        this.loadLoans();
+      },
+      error: () => {
+        localStorage.removeItem('auth_token');
+      },
+    });
+  }
+
+  // ─── Auth ───────────────────────────────────────────────
+
+  login(username: string, password: string): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.api.login(username, password).subscribe({
+      next: (res) => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('auth_token', res.token);
+        }
+        this.currentUser.set(res.user);
+        this.loadFavorites();
+        this.loadLoans();
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.error?.error || 'Credenciales inválidas');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  register(data: {
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    password: string;
+    password2: string;
+    fecha_nacimiento: string;
+    genero: string;
+    pais: string;
+  }): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.api.register(data).subscribe({
+      next: (res) => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('auth_token', res.token);
+        }
+        this.currentUser.set(res.user);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        const errors = err.error;
+        const firstError = Object.values(errors || {}).flat()[0];
+        this.error.set(String(firstError) || 'Error al registrar');
+        this.loading.set(false);
+      },
+    });
   }
 
   logout(): void {
-    this.currentUser.set(null);
-    this.currentView.set('home');
+    this.api.logout().subscribe({
+      complete: () => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.removeItem('auth_token');
+        }
+        this.currentUser.set(null);
+        this.favorites.set([]);
+        this.loans.set([]);
+      },
+    });
   }
 
   updateProfile(updates: Partial<User>): void {
@@ -151,82 +256,106 @@ export class AppStore {
   }
 
   // ─── Favorites ──────────────────────────────────────────
-  toggleFavorite(bookId: string): void {
-    this.favorites.update((favs) =>
-      favs.includes(bookId) ? favs.filter((id) => id !== bookId) : [...favs, bookId],
-    );
+  toggleFavorite(bookId: string | number): void {
+    const numId = Number(bookId);
+    if (this.favorites().includes(numId)) {
+      this.api.removeFavorite(numId).subscribe({
+        next: () => this.favorites.update((favs) => favs.filter((id) => id !== numId)),
+      });
+    } else {
+      this.api.addFavorite(numId).subscribe({
+        next: () => this.favorites.update((favs) => [...favs, numId]),
+      });
+    }
   }
 
-  isFavorite(bookId: string): boolean {
-    return this.favorites().includes(bookId);
+  isFavorite(bookId: string | number): boolean {
+    return this.favorites().includes(Number(bookId));
   }
 
   // ─── Reviews ────────────────────────────────────────────
   addReview(review: Omit<Review, 'id' | 'date'>): void {
-    const newReview: Review = {
-      ...review,
-      id: `r${Date.now()}`,
-      date: new Date().toISOString().split('T')[0],
-      flagged: false,
-    };
-    this.reviews.update((r) => [...r, newReview]);
-    this.books.update((books) =>
-      books.map((b) => (b.id === review.bookId ? { ...b, reviewCount: b.reviewCount + 1 } : b)),
-    );
+    this.api.createReview({
+      bookId: Number(review.bookId),
+      rating: review.rating,
+      comment: review.comment,
+    }).subscribe({
+      next: (newReview) => {
+        this.reviews.update((r) => [...r, newReview]);
+        this.loadBooks(); // refresh ratings
+      },
+      error: (err) => console.error('Error creando reseña:', err),
+    });
   }
 
-  deleteReview(reviewId: string): void {
-    const review = this.reviews().find((r) => r.id === reviewId);
-    if (review) {
-      this.reviews.update((r) => r.filter((rev) => rev.id !== reviewId));
-      this.books.update((books) =>
-        books.map((b) =>
-          b.id === review.bookId ? { ...b, reviewCount: Math.max(0, b.reviewCount - 1) } : b,
-        ),
-      );
-    }
+  deleteReview(reviewId: string | number): void {
+    this.api.deleteReview(Number(reviewId)).subscribe({
+      next: () => {
+        this.reviews.update((r) => r.filter((rev) => String(rev.id) !== String(reviewId)));
+        this.loadBooks();
+      },
+    });
   }
 
-  flagReview(reviewId: string, reason: string): void {
-    this.reviews.update((r) =>
-      r.map((rev) => (rev.id === reviewId ? { ...rev, flagged: true, flagReason: reason } : rev)),
-    );
+  flagReview(reviewId: string | number, reason: string): void {
+    this.api.flagReview(Number(reviewId), reason).subscribe({
+      next: (updated) => {
+        this.reviews.update((r) =>
+          r.map((rev) => (String(rev.id) === String(reviewId) ? updated : rev)),
+        );
+      },
+    });
   }
 
-  unflagReview(reviewId: string): void {
-    this.reviews.update((r) =>
-      r.map((rev) =>
-        rev.id === reviewId ? { ...rev, flagged: false, flagReason: undefined } : rev,
-      ),
-    );
+  unflagReview(reviewId: string | number): void {
+    this.api.unflagReview(Number(reviewId)).subscribe({
+      next: (updated) => {
+        this.reviews.update((r) =>
+          r.map((rev) => (String(rev.id) === String(reviewId) ? updated : rev)),
+        );
+      },
+    });
   }
 
   // ─── Books (Admin) ──────────────────────────────────────
   addBook(book: Omit<Book, 'id'>): void {
-    const newBook: Book = { ...book, id: `b${Date.now()}` };
-    this.books.update((b) => [...b, newBook]);
+    this.loadBooks();
   }
 
-  updateBook(bookId: string, updates: Partial<Book>): void {
-    this.books.update((books) => books.map((b) => (b.id === bookId ? { ...b, ...updates } : b)));
+  updateBook(bookId: string | number, updates: Partial<Book>): void {
+    this.api.updateBook(Number(bookId), updates).subscribe({
+      next: () => this.loadBooks(),
+      error: (err) => console.error('Error actualizando libro:', err),
+    });
   }
 
-  deleteBook(bookId: string): void {
-    this.books.update((b) => b.filter((book) => book.id !== bookId));
+  deleteBook(bookId: string | number): void {
+    this.api.deleteBook(Number(bookId)).subscribe({
+      next: () => this.books.update((b) => b.filter((book) => String(book.id) !== String(bookId))),
+    });
   }
 
   // ─── Loans ──────────────────────────────────────────────
   addLoan(loan: Omit<Loan, 'id'>): void {
-    const newLoan: Loan = { ...loan, id: `l${Date.now()}` };
-    this.loans.update((l) => [...l, newLoan]);
-    this.updateBook(loan.bookId, { available: false });
+    this.api.createLoan({
+      bookId: Number(loan.bookId),
+      dueDate: loan.dueDate,
+    }).subscribe({
+      next: () => {
+        this.loadLoans();
+        this.loadBooks();
+      },
+    });
   }
 
   updateLoan(loanId: string, updates: Partial<Loan>): void {
-    this.loans.update((loans) => loans.map((l) => (l.id === loanId ? { ...l, ...updates } : l)));
     if (updates.status === 'returned') {
-      const loan = this.loans().find((l) => l.id === loanId);
-      if (loan) this.updateBook(loan.bookId, { available: true });
+      this.api.returnLoan(Number(loanId)).subscribe({
+        next: () => {
+          this.loadLoans();
+          this.loadBooks();
+        },
+      });
     }
   }
 }

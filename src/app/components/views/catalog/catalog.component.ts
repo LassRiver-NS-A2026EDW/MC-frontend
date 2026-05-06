@@ -38,8 +38,8 @@ export class CatalogComponent {
     { value: '4.7', label: '4.7+ estrellas' },
   ];
 
-  viewBookDetail(bookId: string): void {
-    const book = this.store.books().find(b => b.id === bookId);
+  viewBookDetail(bookId: string | number): void {
+    const book = this.store.books().find(b => String(b.id) === String(bookId));
     if (book) {
       this.store.selectBook(book);
       this.router.navigate(['/book-detail']);

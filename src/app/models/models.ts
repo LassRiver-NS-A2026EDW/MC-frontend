@@ -1,5 +1,5 @@
 export interface Book {
-  id: string;
+  id: string | number;
   title: string;
   author: string;
   isbn: string;
@@ -16,9 +16,9 @@ export interface Book {
 }
 
 export interface Review {
-  id: string;
-  bookId: string;
-  userId: string;
+  id: string | number;
+  bookId: string | number;
+  userId: string | number;
   userName: string;
   rating: number;
   comment: string;
@@ -28,17 +28,17 @@ export interface Review {
 }
 
 export interface User {
-  id: string;
+  id: string | number;
   name: string;
   email: string;
   role: 'user' | 'librarian' | 'admin';
 }
 
 export interface Loan {
-  id: string;
-  bookId: string;
+  id: string | number;
+  bookId: string | number;
   bookTitle: string;
-  userId: string;
+  userId: string | number;
   userName: string;
   loanDate: string;
   dueDate: string;

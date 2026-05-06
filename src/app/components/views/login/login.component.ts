@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
@@ -11,26 +11,27 @@ import { FormsModule } from '@angular/forms';
 })
 export class LoginComponent {
   private router = inject(Router);
-  email = signal('');
+  username = signal('');
   password = signal('');
-  error = signal('');
+  localError = signal('');
 
-  constructor(public store: AppStore) {}
+  constructor(public store: AppStore) {
+    // Cuando el usuario se autentique, redirigir a home
+    effect(() => {
+      if (this.store.isAuthenticated()) {
+        this.router.navigate(['/home']);
+      }
+    });
+  }
 
   login(event?: Event): void {
-    if (event) {
-      event.preventDefault();
-    }
-    if (!this.email() || !this.password()) {
-      this.error.set('Todos los campos son obligatorios');
+    if (event) event.preventDefault();
+    if (!this.username() || !this.password()) {
+      this.localError.set('Todos los campos son obligatorios');
       return;
     }
-    const success = this.store.login(this.email(), this.password());
-    if (success) {
-      this.router.navigate(['/home']);
-    } else {
-      this.error.set('Credenciales inválidas');
-    }
+    this.localError.set('');
+    this.store.login(this.username(), this.password());
   }
 
   goToRegister(): void {

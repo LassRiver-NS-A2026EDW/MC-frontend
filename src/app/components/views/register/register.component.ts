@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
@@ -11,33 +11,55 @@ import { FormsModule } from '@angular/forms';
 })
 export class RegisterComponent {
   private router = inject(Router);
-  name = signal('');
+
+  // Campos del formulario
+  username = signal('');
   email = signal('');
+  firstName = signal('');
+  lastName = signal('');
   password = signal('');
   confirmPassword = signal('');
-  error = signal('');
+  fechaNacimiento = signal('');
+  genero = signal('M');
+  pais = signal('Colombia');
+  localError = signal('');
 
-  constructor(public store: AppStore) {}
+  constructor(public store: AppStore) {
+    effect(() => {
+      if (this.store.isAuthenticated()) {
+        this.router.navigate(['/home']);
+      }
+    });
+  }
 
-  register(): void {
-    if (!this.name() || !this.email() || !this.password()) {
-      this.error.set('Todos los campos son obligatorios');
+  register(event?: Event): void {
+    if (event) event.preventDefault();
+
+    if (!this.username() || !this.email() || !this.firstName() || !this.password() || !this.fechaNacimiento()) {
+      this.localError.set('Todos los campos obligatorios deben completarse');
       return;
     }
     if (this.password() !== this.confirmPassword()) {
-      this.error.set('Las contraseñas no coinciden');
+      this.localError.set('Las contraseñas no coinciden');
       return;
     }
-    if (this.password().length < 6) {
-      this.error.set('La contraseña debe tener al menos 6 caracteres');
+    if (this.password().length < 8) {
+      this.localError.set('La contraseña debe tener al menos 8 caracteres');
       return;
     }
-    const success = this.store.register(this.name(), this.email(), this.password());
-    if (success) {
-      this.router.navigate(['/home']);
-    } else {
-      this.error.set('El email ya está registrado');
-    }
+
+    this.localError.set('');
+    this.store.register({
+      username: this.username(),
+      email: this.email(),
+      first_name: this.firstName(),
+      last_name: this.lastName(),
+      password: this.password(),
+      password2: this.confirmPassword(),
+      fecha_nacimiento: this.fechaNacimiento(),
+      genero: this.genero(),
+      pais: this.pais(),
+    });
   }
 
   goToLogin(): void {

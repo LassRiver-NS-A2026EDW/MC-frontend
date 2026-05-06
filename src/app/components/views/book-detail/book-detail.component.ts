@@ -33,11 +33,11 @@ export class BookDetailComponent {
   get currentUser() { return this.store.currentUser(); }
 
   readonly bookReviews = computed(() => {
-    return this.store.reviews().filter(r => r.bookId === this.selectedBook?.id);
+    return this.store.reviews().filter(r => String(r.bookId) === String(this.selectedBook?.id));
   });
 
   readonly userReview = computed(() => {
-    return this.bookReviews().find(r => r.userId === this.currentUser?.id);
+    return this.bookReviews().find(r => String(r.userId) === String(this.currentUser?.id));
   });
 
   goBack(): void {
@@ -65,14 +65,14 @@ export class BookDetailComponent {
   handleDeleteReview(): void {
     const review = this.userReview();
     if (review) {
-      this.store.deleteReview(review.id);
+      this.store.deleteReview(String(review.id));
     }
   }
 
   handleFavoriteToggle(): void {
     const book = this.selectedBook;
     if (book && this.currentUser) {
-      this.store.toggleFavorite(book.id);
+      this.store.toggleFavorite(String(book.id));
     }
   }
 

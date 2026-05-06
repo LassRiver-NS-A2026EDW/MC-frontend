@@ -108,7 +108,7 @@ export class AdminComponent {
     this.showBookForm.set(false);
   }
 
-  deleteBook(bookId: string): void {
+  deleteBook(bookId: string | number): void {
     if (confirm('¿Eliminar este libro?')) {
       this.store.deleteBook(bookId);
     }
@@ -137,15 +137,15 @@ export class AdminComponent {
     }
   }
 
-  returnLoan(loanId: string): void {
-    this.store.updateLoan(loanId, {
+  returnLoan(loanId: string | number): void {
+    this.store.updateLoan(String(loanId), {
       status: 'returned',
       returnDate: new Date().toISOString().split('T')[0],
     });
   }
 
   // ─── Reviews ────────────────────────────────────
-  unflagReview(reviewId: string): void {
+  unflagReview(reviewId: string | number): void {
     this.store.unflagReview(reviewId);
   }
 }
