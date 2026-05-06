@@ -1,16 +1,27 @@
 import { Component, computed, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Book } from '../../../models/models';
+import { LucideAngularModule, BookOpen, Users, TrendingUp, AlertCircle, Plus, CheckCircle, XCircle, Home } from 'lucide-angular';
 
 @Component({
   selector: 'app-admin',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule, RouterModule],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
 export class AdminComponent {
   activeTab = signal<'dashboard' | 'books' | 'loans' | 'reviews'>('dashboard');
+
+  readonly BookOpenIcon = BookOpen;
+  readonly UsersIcon = Users;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly AlertCircleIcon = AlertCircle;
+  readonly PlusIcon = Plus;
+  readonly CheckCircleIcon = CheckCircle;
+  readonly XCircleIcon = XCircle;
+  readonly HomeIcon = Home;
 
   // Book form
   showBookForm = signal(false);

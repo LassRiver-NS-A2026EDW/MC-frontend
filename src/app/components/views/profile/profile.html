@@ -1,55 +1,127 @@
-<div class="p-6 max-w-2xl mx-auto">
-  <h2 class="text-2xl font-bold text-foreground mb-8">👤 Mi Perfil</h2>
+@if (!currentUser) {
+  <div class="flex-1 flex items-center justify-center p-6">
+    <app-empty-state
+      [icon]="LogInIcon"
+      title="Acceso Restringido"
+      description="Debes iniciar sesión para ver tu perfil y gestionar tu cuenta"
+      actionLabel="Iniciar Sesión"
+      (onAction)="router.navigate(['/login'])"
+    ></app-empty-state>
+  </div>
+} @else {
+  <div class="flex-1 overflow-auto">
+    <div class="p-6 space-y-6 max-w-4xl mx-auto">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground mb-2">Mi Perfil</h1>
+        <p class="text-muted-foreground">Administra tu información personal</p>
+      </div>
 
-  @if (user) {
-    <div class="bg-card border border-border rounded-2xl overflow-hidden">
-      <div class="h-32 bg-gradient-to-r from-primary to-secondary"></div>
-      <div class="px-6 pb-6">
-        <div class="flex items-end -mt-12 mb-6">
-          <div class="h-24 w-24 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold border-4 border-card shadow-lg">
-            {{ user.name.charAt(0) }}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded-xl border bg-card text-card-foreground shadow md:col-span-1">
+          <div class="p-8 text-center">
+            <div class="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-4xl font-bold mx-auto mb-4 shadow-lg">
+              {{ currentUser.name.charAt(0).toUpperCase() }}
+            </div>
+            <h3 class="font-semibold text-xl mb-1">{{ currentUser.name }}</h3>
+            <p class="text-sm text-muted-foreground mb-4">{{ currentUser.email }}</p>
+            <app-role-badge [role]="currentUser.role"></app-role-badge>
           </div>
         </div>
 
-        @if (editing()) {
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
-              <input type="text" [(ngModel)]="editName"
-                class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-foreground mb-1.5">Email</label>
-              <input type="email" [(ngModel)]="editEmail"
-                class="w-full px-4 py-2.5 rounded-lg border border-input bg-input-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-            </div>
-            <div class="flex gap-3">
-              <button (click)="saveProfile()" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Guardar</button>
-              <button (click)="cancelEdit()" class="px-6 py-2.5 bg-muted text-foreground rounded-lg font-medium hover:opacity-80 transition-opacity">Cancelar</button>
+        <div class="rounded-xl border bg-card text-card-foreground shadow hover:shadow-lg transition-shadow">
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-3xl font-bold text-primary">{{ favorites.length }}</p>
+                <p class="text-sm text-muted-foreground mt-1">Libros Favoritos</p>
+              </div>
+              <div class="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <lucide-icon [img]="HeartIcon" class="h-7 w-7 text-primary"></lucide-icon>
+              </div>
             </div>
           </div>
-        } @else {
-          <div class="space-y-4">
-            <div>
-              <p class="text-sm text-muted-foreground">Nombre</p>
-              <p class="text-lg font-medium text-foreground">{{ user.name }}</p>
+        </div>
+
+        <div class="rounded-xl border bg-card text-card-foreground shadow hover:shadow-lg transition-shadow">
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-3xl font-bold text-accent">{{ userReviews().length }}</p>
+                <p class="text-sm text-muted-foreground mt-1">Reseñas Publicadas</p>
+              </div>
+              <div class="h-14 w-14 rounded-full bg-accent/10 flex items-center justify-center">
+                <lucide-icon [img]="MessageSquareIcon" class="h-7 w-7 text-accent"></lucide-icon>
+              </div>
             </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Email</p>
-              <p class="text-lg font-medium text-foreground">{{ user.email }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-muted-foreground">Rol</p>
-              <p class="text-lg font-medium">
-                @if (user.role === 'admin') { <span class="text-destructive">Administrador</span> }
-                @else if (user.role === 'librarian') { <span class="text-primary">Bibliotecario</span> }
-                @else { <span class="text-accent">Usuario</span> }
-              </p>
-            </div>
-            <button (click)="startEditing()" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Editar Perfil</button>
           </div>
-        }
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card text-card-foreground shadow">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <h3 class="font-semibold leading-none tracking-tight">Información Personal</h3>
+        </div>
+        <div class="p-6 pt-0 space-y-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium flex items-center gap-2">
+              <lucide-icon [img]="UserIcon" class="h-4 w-4"></lucide-icon>
+              Nombre Completo
+            </label>
+            <input
+              [ngModel]="editName()"
+              (ngModelChange)="editName.set($event)"
+              placeholder="Nombre completo"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium flex items-center gap-2">
+              <lucide-icon [img]="MailIcon" class="h-4 w-4"></lucide-icon>
+              Correo Electrónico
+            </label>
+            <input
+              type="email"
+              [ngModel]="editEmail()"
+              (ngModelChange)="editEmail.set($event)"
+              placeholder="correo@ejemplo.com"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-medium flex items-center gap-2">
+              <lucide-icon [img]="ShieldIcon" class="h-4 w-4"></lucide-icon>
+              Rol
+            </label>
+            <input [value]="currentUser.role" disabled class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+          </div>
+          <button (click)="saveProfile()" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">Guardar Cambios</button>
+        </div>
+      </div>
+
+      <div class="rounded-xl border bg-card text-card-foreground shadow">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <h3 class="font-semibold leading-none tracking-tight">Mis Reseñas Recientes</h3>
+        </div>
+        <div class="p-6 pt-0">
+          @if (userReviews().length === 0) {
+            <p class="text-center text-muted-foreground py-8">
+              No has escrito reseñas aún
+            </p>
+          } @else {
+            <div class="space-y-3">
+              @for (review of userReviews().slice(0, 5); track review.id) {
+                <div class="p-4 bg-muted/30 rounded-xl border border-border">
+                  <div class="flex items-center justify-between mb-2">
+                    <app-rating-stars [rating]="review.rating" [readonly]="true" size="sm"></app-rating-stars>
+                    <p class="text-xs text-muted-foreground">{{ review.date }}</p>
+                  </div>
+                  <p class="text-sm text-muted-foreground line-clamp-2">{{ review.comment }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
     </div>
-  }
-</div>
+  </div>
+}

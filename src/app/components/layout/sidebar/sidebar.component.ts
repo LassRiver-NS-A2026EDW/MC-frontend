@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, LayoutDashboard, Menu } from 'lucide-angular';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  imports: [LucideAngularModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -13,18 +14,20 @@ export class SidebarComponent {
 
   constructor(public store: AppStore) {}
 
+  readonly MenuIcon = Menu;
+
   navItems = [
-    { id: 'home', label: 'Inicio', icon: 'home', roles: ['all'] },
-    { id: 'catalog', label: 'Catálogo', icon: 'book-open', roles: ['all'] },
-    { id: 'favorites', label: 'Favoritos', icon: 'heart', roles: ['user', 'librarian', 'admin'] },
+    { id: 'home', label: 'Inicio', icon: Home, roles: ['all'] },
+    { id: 'catalog', label: 'Catálogo', icon: BookOpen, roles: ['all'] },
+    { id: 'favorites', label: 'Favoritos', icon: Heart, roles: ['user', 'librarian', 'admin'] },
     {
       id: 'reviews',
       label: 'Reseñas',
-      icon: 'message-square',
+      icon: MessageSquare,
       roles: ['user', 'librarian', 'admin'],
     },
-    { id: 'profile', label: 'Perfil', icon: 'user', roles: ['user', 'librarian', 'admin'] },
-    { id: 'admin', label: 'Admin', icon: 'layout-dashboard', roles: ['admin', 'librarian'] },
+    { id: 'profile', label: 'Perfil', icon: User, roles: ['user', 'librarian', 'admin'] },
+    { id: 'admin', label: 'Administración', icon: LayoutDashboard, roles: ['admin', 'librarian'] },
   ];
 
   canAccess(roles: string[]): boolean {

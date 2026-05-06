@@ -1,15 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { LucideAngularModule, Heart, LogIn } from 'lucide-angular';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.component';
 
 @Component({
   selector: 'app-favorites',
-  imports: [RouterLink],
+  imports: [LucideAngularModule, EmptyStateComponent, RatingStarsComponent],
   templateUrl: './favorites.html',
   styleUrl: './favorites.css',
 })
 export class FavoritesComponent {
-  constructor(public store: AppStore, private router: Router) {}
+  readonly store = inject(AppStore);
+  readonly router = inject(Router);
+
+  readonly HeartIcon = Heart;
+  readonly LogInIcon = LogIn;
 
   get favoriteBooks() { return this.store.favoriteBooks(); }
 

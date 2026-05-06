@@ -2,8 +2,8 @@
   @for (star of stars; track star) {
     <button type="button" (click)="setRating(star)"
       [class.cursor-default]="readonly()"
-      class="transition-colors {{ getSizeClass() }} {{ getStarClass(star) }}">
-      ★
+      class="transition-colors">
+      <lucide-icon [img]="StarIcon" class="{{ getSizeClass() }} {{ getStarClass(star) }}"></lucide-icon>
     </button>
   }
   @if (showLabel()) {

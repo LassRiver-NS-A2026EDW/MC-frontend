@@ -17,7 +17,10 @@ export class LoginComponent {
 
   constructor(public store: AppStore) {}
 
-  login(): void {
+  login(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
     if (!this.email() || !this.password()) {
       this.error.set('Todos los campos son obligatorios');
       return;

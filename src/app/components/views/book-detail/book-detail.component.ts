@@ -1,21 +1,86 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, ArrowLeft, Heart, Star, Calendar, BookOpen, Globe, Building2, LogIn } from 'lucide-angular';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.component';
+import { StatusBadgeComponent } from '../../shared/status-badge/status-badge.component';
 
 @Component({
   selector: 'app-book-detail',
-  imports: [],
+  imports: [FormsModule, LucideAngularModule, EmptyStateComponent, RatingStarsComponent, StatusBadgeComponent],
   templateUrl: './book-detail.html',
   styleUrl: './book-detail.css',
 })
 export class BookDetailComponent {
-  constructor(public store: AppStore, private router: Router) {}
+  readonly store = inject(AppStore);
+  readonly router = inject(Router);
 
-  get book() { return this.store.selectedBook(); }
-  get reviews() { return this.store.reviews().filter(r => r.bookId === this.book?.id); }
-  get isFavorite() { return this.book ? this.store.isFavorite(this.book.id) : false; }
+  readonly ArrowLeftIcon = ArrowLeft;
+  readonly HeartIcon = Heart;
+  readonly StarIcon = Star;
+  readonly CalendarIcon = Calendar;
+  readonly BookOpenIcon = BookOpen;
+  readonly GlobeIcon = Globe;
+  readonly Building2Icon = Building2;
+  readonly LogInIcon = LogIn;
+
+  rating = signal(5);
+  comment = signal('');
+
+  get selectedBook() { return this.store.selectedBook(); }
+  get currentUser() { return this.store.currentUser(); }
+
+  readonly bookReviews = computed(() => {
+    return this.store.reviews().filter(r => r.bookId === this.selectedBook?.id);
+  });
+
+  readonly userReview = computed(() => {
+    return this.bookReviews().find(r => r.userId === this.currentUser?.id);
+  });
 
   goBack(): void {
     this.router.navigate(['/catalog']);
+  }
+
+  handleSubmitReview(): void {
+    const book = this.selectedBook;
+    const user = this.currentUser;
+    if (!user || !book) return;
+    if (!this.comment().trim()) return;
+    
+    this.store.addReview({
+      bookId: book.id,
+      userId: user.id,
+      userName: user.name,
+      rating: this.rating(),
+      comment: this.comment(),
+      flagged: false,
+    });
+    this.comment.set('');
+    this.rating.set(5);
+  }
+
+  handleDeleteReview(): void {
+    const review = this.userReview();
+    if (review) {
+      this.store.deleteReview(review.id);
+    }
+  }
+
+  handleFavoriteToggle(): void {
+    const book = this.selectedBook;
+    if (book && this.currentUser) {
+      this.store.toggleFavorite(book.id);
+    }
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 }

@@ -1,78 +1,205 @@
-@if (book) {
-  <div class="p-6 max-w-5xl mx-auto">
-    <button (click)="goBack()" class="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
-      ← Volver al Catálogo
-    </button>
+@if (!selectedBook) {
+  <div class="p-6"></div>
+} @else {
+  @let book = selectedBook!;
+  <div class="flex-1 overflow-auto">
+    <div class="p-6 space-y-6">
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+      >
+        <lucide-icon [img]="ArrowLeftIcon" class="h-4 w-4 mr-2"></lucide-icon>
+        Volver al catálogo
+      </button>
 
-    <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Cover -->
-      <div class="w-full lg:w-80 shrink-0">
-        <div class="aspect-[2/3] rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-          <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1">
+          <div class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden sticky top-6">
+            <div class="aspect-[3/4] bg-muted">
+              <img
+                [src]="book.coverUrl"
+                [alt]="book.title"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="p-4 space-y-3">
+              <button
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 w-full"
+                [class.bg-secondary]="store.isFavorite(book.id)"
+                [class.text-secondary-foreground]="store.isFavorite(book.id)"
+                [class.hover:bg-secondary/80]="store.isFavorite(book.id)"
+                [class.bg-primary]="!store.isFavorite(book.id)"
+                [class.text-primary-foreground]="!store.isFavorite(book.id)"
+                [class.hover:bg-primary/90]="!store.isFavorite(book.id)"
+                (click)="handleFavoriteToggle()"
+              >
+                <lucide-icon
+                  [img]="HeartIcon"
+                  class="h-4 w-4 mr-2"
+                  [class.fill-current]="store.isFavorite(book.id)"
+                ></lucide-icon>
+                {{ store.isFavorite(book.id) ? 'En Favoritos' : 'Agregar a Favoritos' }}
+              </button>
+              <button
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full"
+                [disabled]="!book.available"
+              >
+                {{ book.available ? 'Reservar Libro' : 'No Disponible' }}
+              </button>
+            </div>
+          </div>
         </div>
-        @if (store.isAuthenticated()) {
-          <button (click)="store.toggleFavorite(book.id)"
-            class="w-full mt-4 py-2.5 rounded-lg font-medium transition-colors"
-            [class.bg-red-500]="isFavorite"
-            [class.text-white]="isFavorite"
-            [class.bg-primary]="!isFavorite"
-            [class.text-primary-foreground]="!isFavorite">
-            {{ isFavorite ? '❤️ Quitar de Favoritos' : '🤍 Agregar a Favoritos' }}
-          </button>
-        }
-      </div>
 
-      <!-- Info -->
-      <div class="flex-1">
-        <h1 class="text-3xl font-bold text-foreground">{{ book.title }}</h1>
-        <p class="text-lg text-muted-foreground mt-1">{{ book.author }}</p>
+        <div class="lg:col-span-2 space-y-6">
+          <div>
+            <h1 class="text-3xl font-bold text-foreground mb-2">{{ book.title }}</h1>
+            <p class="text-xl text-muted-foreground mb-4">{{ book.author }}</p>
 
-        <div class="flex items-center gap-4 mt-4">
-          <span class="text-yellow-500 text-lg">★ {{ book.rating }}</span>
-          <span class="text-muted-foreground">({{ book.reviewCount }} reseñas)</span>
-          @if (book.available) {
-            <span class="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm">Disponible</span>
-          } @else {
-            <span class="bg-destructive/10 text-destructive px-3 py-1 rounded-full text-sm">No disponible</span>
-          }
-        </div>
+            <div class="flex items-center gap-4 mb-6">
+              <app-rating-stars [rating]="book.rating" [readonly]="true" size="lg" [showLabel]="true"></app-rating-stars>
+              <span class="text-sm text-muted-foreground">
+                ({{ book.reviewCount }} reseñas)
+              </span>
+              <app-status-badge [status]="book.available ? 'available' : 'unavailable'"></app-status-badge>
+            </div>
 
-        <div class="grid grid-cols-2 gap-4 mt-6 p-4 bg-card border border-border rounded-xl">
-          <div><span class="text-xs text-muted-foreground">ISBN</span><p class="text-sm font-medium">{{ book.isbn }}</p></div>
-          <div><span class="text-xs text-muted-foreground">Categoría</span><p class="text-sm font-medium">{{ book.category }}</p></div>
-          <div><span class="text-xs text-muted-foreground">Idioma</span><p class="text-sm font-medium">{{ book.language }}</p></div>
-          <div><span class="text-xs text-muted-foreground">Páginas</span><p class="text-sm font-medium">{{ book.pages }}</p></div>
-          <div><span class="text-xs text-muted-foreground">Editorial</span><p class="text-sm font-medium">{{ book.publisher }}</p></div>
-          <div><span class="text-xs text-muted-foreground">Publicación</span><p class="text-sm font-medium">{{ book.publishDate }}</p></div>
-        </div>
-
-        <div class="mt-6">
-          <h3 class="font-semibold text-foreground mb-2">Descripción</h3>
-          <p class="text-muted-foreground leading-relaxed">{{ book.description }}</p>
-        </div>
-
-        <!-- Reviews -->
-        <div class="mt-8">
-          <h3 class="text-xl font-semibold text-foreground mb-4">Reseñas ({{ reviews.length }})</h3>
-          <div class="space-y-4">
-            @for (review of reviews; track review.id) {
-              <div class="bg-card border border-border rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-medium text-foreground">{{ review.userName }}</span>
-                  <span class="text-xs text-muted-foreground">{{ review.date }}</span>
-                </div>
-                <div class="text-yellow-500 text-sm mb-2">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
-                <p class="text-sm text-muted-foreground">{{ review.comment }}</p>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+                {{ book.category }}
               </div>
-            }
+              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                {{ book.language }}
+              </div>
+            </div>
+
+            <div class="rounded-xl border bg-card text-card-foreground shadow">
+              <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="font-semibold leading-none tracking-tight">Detalles del Libro</h3>
+              </div>
+              <div class="p-6 pt-0 space-y-3">
+                <div class="flex items-start gap-3">
+                  <lucide-icon [img]="Building2Icon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
+                  <div>
+                    <p class="text-sm font-medium">Editorial</p>
+                    <p class="text-sm text-muted-foreground">{{ book.publisher }}</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <lucide-icon [img]="CalendarIcon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
+                  <div>
+                    <p class="text-sm font-medium">Fecha de Publicación</p>
+                    <p class="text-sm text-muted-foreground">
+                      {{ formatDate(book.publishDate) }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <lucide-icon [img]="BookOpenIcon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
+                  <div>
+                    <p class="text-sm font-medium">Páginas</p>
+                    <p class="text-sm text-muted-foreground">{{ book.pages }}</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <lucide-icon [img]="GlobeIcon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
+                  <div>
+                    <p class="text-sm font-medium">ISBN</p>
+                    <p class="text-sm text-muted-foreground">{{ book.isbn }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border bg-card text-card-foreground shadow mt-6">
+              <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="font-semibold leading-none tracking-tight">Descripción</h3>
+              </div>
+              <div class="p-6 pt-0">
+                <p class="text-muted-foreground leading-relaxed">{{ book.description }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-xl border bg-card text-card-foreground shadow">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="font-semibold leading-none tracking-tight">Reseñas</h3>
+            </div>
+            <div class="p-6 pt-0 space-y-6">
+              @if (currentUser && !userReview()) {
+                <div class="space-y-4 p-6 bg-muted/30 rounded-xl border border-border">
+                  <div>
+                    <label class="text-sm font-medium mb-3 block">Tu Calificación</label>
+                    <app-rating-stars
+                      [rating]="rating()"
+                      (onRatingChange)="rating.set($event)"
+                      size="lg"
+                    ></app-rating-stars>
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium mb-2 block">
+                      Tu Reseña ({{ comment().length }}/500)
+                    </label>
+                    <textarea
+                      placeholder="Comparte tu opinión sobre este libro..."
+                      [ngModel]="comment()"
+                      (ngModelChange)="comment.set($event)"
+                      rows="4"
+                      maxlength="500"
+                      class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    ></textarea>
+                  </div>
+                  <button
+                    (click)="handleSubmitReview()"
+                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                  >
+                    Publicar Reseña
+                  </button>
+                </div>
+              }
+
+              @if (!currentUser) {
+                <app-empty-state
+                  [icon]="LogInIcon"
+                  title="Inicia sesión para escribir reseñas"
+                  description="Comparte tu opinión sobre este libro con la comunidad"
+                  actionLabel="Iniciar Sesión"
+                  (onAction)="router.navigate(['/login'])"
+                ></app-empty-state>
+              }
+
+              <div class="space-y-4">
+                @for (review of bookReviews(); track review.id) {
+                  <div class="p-5 bg-card border border-border rounded-xl hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex-1">
+                        <p class="font-semibold text-foreground">{{ review.userName }}</p>
+                        <div class="flex items-center gap-3 mt-2">
+                          <app-rating-stars [rating]="review.rating" [readonly]="true" size="sm"></app-rating-stars>
+                          <span class="text-xs text-muted-foreground">{{ review.date }}</span>
+                        </div>
+                      </div>
+                      @if (currentUser?.id === review.userId) {
+                        <button
+                          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+                          (click)="handleDeleteReview()"
+                        >
+                          Eliminar
+                        </button>
+                      }
+                    </div>
+                    <p class="text-muted-foreground leading-relaxed">{{ review.comment }}</p>
+                  </div>
+                }
+                @if (bookReviews().length === 0) {
+                  <p class="text-center text-muted-foreground py-8">
+                    No hay reseñas aún. Sé el primero en escribir una.
+                  </p>
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-} @else {
-  <div class="flex flex-col items-center justify-center py-16">
-    <p class="text-muted-foreground">Selecciona un libro del catálogo</p>
-    <button (click)="goBack()" class="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-lg">Ir al Catálogo</button>
   </div>
 }

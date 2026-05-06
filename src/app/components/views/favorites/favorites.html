@@ -1,39 +1,71 @@
-<div class="p-6">
-  <h2 class="text-2xl font-bold text-foreground mb-6">❤️ Mis Favoritos</h2>
+@if (!store.currentUser()) {
+  <div class="flex-1 flex items-center justify-center p-6">
+    <app-empty-state
+      [icon]="LogInIcon"
+      title="Acceso Restringido"
+      description="Debes iniciar sesión para ver tus libros favoritos"
+      actionLabel="Iniciar Sesión"
+      (onAction)="router.navigate(['/login'])"
+    ></app-empty-state>
+  </div>
+} @else {
+  <div class="flex-1 overflow-auto">
+    <div class="p-6 space-y-6">
+      <div>
+        <h1 class="text-3xl font-bold text-foreground mb-2">Mis Favoritos</h1>
+        <p class="text-muted-foreground">
+          {{ favoriteBooks.length }} {{ favoriteBooks.length === 1 ? 'libro guardado' : 'libros guardados' }}
+        </p>
+      </div>
 
-  @if (favoriteBooks.length === 0) {
-    <div class="flex flex-col items-center justify-center py-16">
-      <div class="text-6xl mb-4">💔</div>
-      <h3 class="text-xl font-semibold text-foreground mb-2">No tienes favoritos</h3>
-      <p class="text-muted-foreground mb-6">Explora el catálogo y agrega libros a tus favoritos</p>
-      <a routerLink="/catalog" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity">Ir al Catálogo</a>
-    </div>
-  } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      @for (book of favoriteBooks; track book.id) {
-        <div (click)="viewBookDetail(book.id)"
-          class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all group cursor-pointer">
-          <div class="h-48 overflow-hidden relative">
-            <img [src]="book.coverUrl" [alt]="book.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-            <button (click)="store.toggleFavorite(book.id); $event.stopPropagation()"
-              class="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm">
-              <span class="text-red-500">❤️</span>
-            </button>
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-foreground truncate">{{ book.title }}</h3>
-            <p class="text-sm text-muted-foreground mt-1">{{ book.author }}</p>
-            <div class="flex items-center justify-between mt-3">
-              <span class="text-yellow-500 text-sm">★ {{ book.rating }}</span>
-              @if (book.available) {
-                <span class="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">Disponible</span>
-              } @else {
-                <span class="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">No disponible</span>
-              }
+      @if (favoriteBooks.length === 0) {
+        <app-empty-state
+          [icon]="HeartIcon"
+          title="No tienes favoritos aún"
+          description="Explora el catálogo y guarda tus libros favoritos para acceder a ellos fácilmente"
+          actionLabel="Ir al Catálogo"
+          (onAction)="router.navigate(['/catalog'])"
+        ></app-empty-state>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          @for (book of favoriteBooks; track book.id) {
+            <div
+              class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+            >
+              <div class="relative aspect-[3/4] overflow-hidden bg-muted">
+                <img
+                  [src]="book.coverUrl"
+                  [alt]="book.title"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  (click)="viewBookDetail(book.id)"
+                />
+                <button
+                  (click)="$event.stopPropagation(); store.toggleFavorite(book.id)"
+                  class="absolute top-3 right-3 p-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full hover:scale-110 transition-transform"
+                >
+                  <lucide-icon [img]="HeartIcon" class="h-5 w-5 fill-red-500 text-red-500"></lucide-icon>
+                </button>
+              </div>
+              <div class="p-4" (click)="viewBookDetail(book.id)">
+                <h3 class="font-medium text-foreground line-clamp-2 mb-1">{{ book.title }}</h3>
+                <p class="text-sm text-muted-foreground mb-3">{{ book.author }}</p>
+                <div class="mb-3 flex items-center">
+                  <app-rating-stars [rating]="book.rating" [readonly]="true" size="sm" [showLabel]="true"></app-rating-stars>
+                  <span class="text-xs text-muted-foreground ml-1">({{ book.reviewCount }})</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                    {{ book.category }}
+                  </div>
+                  <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
+                    {{ book.language }}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          }
         </div>
       }
     </div>
-  }
-</div>
+  </div>
+}

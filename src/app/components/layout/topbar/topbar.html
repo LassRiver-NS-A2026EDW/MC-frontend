@@ -1,23 +1,42 @@
-<header class="h-16 border-b border-border bg-background flex items-center justify-between px-6">
-  <h2 class="text-lg font-semibold text-foreground">{{ getViewTitle() }}</h2>
-  <div class="flex items-center gap-4">
+<div class="h-16 bg-card border-b border-border flex items-center justify-between px-6 sticky top-0 z-10">
+  <div class="flex items-center gap-4 flex-1 max-w-2xl">
+    <div class="relative flex-1">
+      <lucide-icon [img]="SearchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></lucide-icon>
+      <input
+        type="text"
+        placeholder="Buscar por título o autor..."
+        [value]="store.searchQuery()"
+        (input)="onSearchChange($event)"
+        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9"
+      />
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
     <button
       (click)="store.toggleTheme()"
-      class="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
     >
       @if (store.theme() === 'dark') {
-      <span>☀️</span>
+        <lucide-icon [img]="SunIcon" class="h-5 w-5"></lucide-icon>
       } @else {
-      <span>🌙</span>
+        <lucide-icon [img]="MoonIcon" class="h-5 w-5"></lucide-icon>
       }
     </button>
+
+    <button
+      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+    >
+      <lucide-icon [img]="BellIcon" class="h-5 w-5"></lucide-icon>
+    </button>
+
     @if (store.isAuthenticated()) {
     <button
       (click)="store.logout(); router.navigate(['/home'])"
-      class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
     >
-      Cerrar Sesión
+      <lucide-icon [img]="LogOutIcon" class="h-5 w-5"></lucide-icon>
     </button>
     }
   </div>
-</header>
+</div>

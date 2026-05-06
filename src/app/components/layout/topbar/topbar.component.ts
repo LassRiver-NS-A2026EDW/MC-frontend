@@ -1,10 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { LucideAngularModule, Search, Bell, Sun, Moon, LogOut } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-topbar',
-  imports: [],
+  imports: [LucideAngularModule, FormsModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
@@ -13,15 +15,14 @@ export class TopbarComponent {
 
   constructor(public store: AppStore) {}
 
-  getViewTitle(): string {
-    const url = this.router.url;
-    if (url.includes('/home')) return 'Inicio';
-    if (url.includes('/catalog')) return 'Catálogo';
-    if (url.includes('/book-detail')) return 'Detalle del Libro';
-    if (url.includes('/favorites')) return 'Favoritos';
-    if (url.includes('/reviews')) return 'Reseñas';
-    if (url.includes('/profile')) return 'Perfil';
-    if (url.includes('/admin')) return 'Administración';
-    return 'LassRiver NS';
+  readonly SearchIcon = Search;
+  readonly BellIcon = Bell;
+  readonly SunIcon = Sun;
+  readonly MoonIcon = Moon;
+  readonly LogOutIcon = LogOut;
+
+  onSearchChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.store.setSearchQuery(target.value);
   }
 }

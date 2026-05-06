@@ -1,17 +1,34 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
-import { RouterLink } from '@angular/router';
+import { LucideAngularModule, BookOpen, TrendingUp, Users, Star } from 'lucide-angular';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class HomeComponent {
-  constructor(public store: AppStore) {}
+  readonly store = inject(AppStore);
+  readonly router = inject(Router);
+
+  readonly BookOpenIcon = BookOpen;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly UsersIcon = Users;
+  readonly StarIcon = Star;
 
   stats = computed(() => this.store.stats());
-  featuredBooks = computed(() => this.store.books().filter(b => b.rating >= 4.7).slice(0, 4));
-  recentBooks = computed(() => this.store.books().slice(0, 4));
+  
+  readonly featuredBooks = computed(() => {
+    return this.store.books()
+      .filter((b) => b.rating >= 4.7)
+      .slice(0, 6);
+  });
+
+  readonly categories = computed(() => {
+    return Array.from(new Set(this.store.books().map((b) => b.category)));
+  });
 }

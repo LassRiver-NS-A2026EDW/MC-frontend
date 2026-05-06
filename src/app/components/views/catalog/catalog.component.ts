@@ -1,24 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LucideAngularModule, Heart, Star, Search, Filter } from 'lucide-angular';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.component';
 
 @Component({
   selector: 'app-catalog',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule, EmptyStateComponent, RatingStarsComponent],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
 export class CatalogComponent {
-  constructor(public store: AppStore, private router: Router) {}
+  readonly store = inject(AppStore);
+  readonly router = inject(Router);
 
-  readonly categories = ['Ficción', 'Romance', 'Clásicos', 'Misterio', 'Cuentos', 'Ficción Psicológica'];
-  readonly languages = ['Español'];
+  showFilters = signal(true);
+
+  readonly HeartIcon = Heart;
+  readonly StarIcon = Star;
+  readonly SearchIcon = Search;
+  readonly FilterIcon = Filter;
+
+  get categories() {
+    return ['all', ...Array.from(new Set(this.store.books().map((b) => b.category)))];
+  }
+
+  get languages() {
+    return ['all', ...Array.from(new Set(this.store.books().map((b) => b.language)))];
+  }
+
   readonly ratingOptions = [
-    { value: 'all', label: 'Todos' },
-    { value: '4', label: '4+ Estrellas' },
-    { value: '3', label: '3+ Estrellas' },
-    { value: '2', label: '2+ Estrellas' },
+    { value: 'all', label: 'Cualquier rating' },
+    { value: '4', label: '4+ estrellas' },
+    { value: '4.5', label: '4.5+ estrellas' },
+    { value: '4.7', label: '4.7+ estrellas' },
   ];
 
   viewBookDetail(bookId: string): void {
@@ -27,5 +44,13 @@ export class CatalogComponent {
       this.store.selectBook(book);
       this.router.navigate(['/book-detail']);
     }
+  }
+
+  clearFilters(): void {
+    this.store.setCategoryFilter('all');
+    this.store.setLanguageFilter('all');
+    this.store.setRatingFilter('all');
+    this.store.setAvailabilityFilter('all');
+    this.store.setSearchQuery('');
   }
 }

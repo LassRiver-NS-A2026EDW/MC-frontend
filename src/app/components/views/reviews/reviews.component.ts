@@ -1,48 +1,37 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { LucideAngularModule, MessageSquare, LogIn } from 'lucide-angular';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.component';
 
 @Component({
   selector: 'app-reviews',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule, EmptyStateComponent, RatingStarsComponent],
   templateUrl: './reviews.html',
   styleUrl: './reviews.css',
 })
 export class ReviewsComponent {
-  newComment = signal('');
-  newRating = signal(5);
-  selectedBookId = signal('');
-  showForm = signal(false);
+  readonly store = inject(AppStore);
+  readonly router = inject(Router);
 
-  constructor(public store: AppStore) {}
+  readonly MessageSquareIcon = MessageSquare;
+  readonly LogInIcon = LogIn;
 
-  get userReviews() {
-    return this.store.userReviews();
-  }
-  get books() {
-    return this.store.books();
-  }
+  get currentUser() { return this.store.currentUser(); }
+  get userReviews() { return this.store.userReviews(); }
+  get books() { return this.store.books(); }
 
-  submitReview(): void {
-    const user = this.store.currentUser();
-    if (!user || !this.selectedBookId() || !this.newComment()) return;
-    this.store.addReview({
-      bookId: this.selectedBookId(),
-      userId: user.id,
-      userName: user.name,
-      rating: this.newRating(),
-      comment: this.newComment(),
-      flagged: false,
-    });
-    this.newComment.set('');
-    this.newRating.set(5);
-    this.selectedBookId.set('');
-    this.showForm.set(false);
+  getBook(bookId: string) {
+    return this.books.find(b => b.id === bookId);
   }
 
-  deleteReview(reviewId: string): void {
-    if (confirm('¿Eliminar esta reseña?')) {
-      this.store.deleteReview(reviewId);
+  handleBookClick(bookId: string): void {
+    const book = this.getBook(bookId);
+    if (book) {
+      this.store.selectBook(book);
+      this.router.navigate(['/book-detail']);
     }
   }
 }
