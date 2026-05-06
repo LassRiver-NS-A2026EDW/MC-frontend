@@ -27,9 +27,18 @@
 
       <form (submit)="register($event)">
         <div class="p-6 pt-0 space-y-4">
-          @if (localError() || store.error()) {
-          <div class="bg-destructive/10 text-destructive text-sm p-3 rounded-lg">
-            {{ localError() || store.error() }}
+          @if (localErrors().length > 0 || store.error()) {
+          <div class="bg-destructive/10 text-destructive text-sm p-4 rounded-lg">
+            @if (store.error()) {
+              <p>{{ store.error() }}</p>
+            }
+            @if (localErrors().length > 0) {
+              <ul class="list-disc pl-5 space-y-1">
+                @for (err of localErrors(); track err) {
+                  <li>{{ err }}</li>
+                }
+              </ul>
+            }
           </div>
           }
 
@@ -65,12 +74,14 @@
             <input
               id="reg-username"
               type="text"
+              maxlength="15"
               [ngModel]="username()"
               (ngModelChange)="username.set($event)"
               name="username"
               placeholder="daniel.lasso"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
+            <p class="text-xs text-muted-foreground">Máximo 15 caracteres.</p>
           </div>
 
           <div class="space-y-2">
@@ -92,6 +103,7 @@
               <input
                 id="fecha-nacimiento"
                 type="date"
+                max="2020-12-31"
                 [ngModel]="fechaNacimiento()"
                 (ngModelChange)="fechaNacimiento.set($event)"
                 name="fechaNacimiento"
@@ -140,6 +152,24 @@
                 placeholder="••••••••"
                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
+              <div class="mt-2 space-y-1 text-xs">
+                <div class="flex items-center gap-2" [class.text-green-600]="hasLength()" [class.text-muted-foreground]="!hasLength()">
+                  <lucide-icon [img]="hasLength() ? CheckIcon : XIcon" class="h-3 w-3"></lucide-icon>
+                  <span>Mínimo 8 caracteres</span>
+                </div>
+                <div class="flex items-center gap-2" [class.text-green-600]="hasUpper()" [class.text-muted-foreground]="!hasUpper()">
+                  <lucide-icon [img]="hasUpper() ? CheckIcon : XIcon" class="h-3 w-3"></lucide-icon>
+                  <span>Al menos una mayúscula</span>
+                </div>
+                <div class="flex items-center gap-2" [class.text-green-600]="hasNumber()" [class.text-muted-foreground]="!hasNumber()">
+                  <lucide-icon [img]="hasNumber() ? CheckIcon : XIcon" class="h-3 w-3"></lucide-icon>
+                  <span>Al menos un número</span>
+                </div>
+                <div class="flex items-center gap-2" [class.text-green-600]="hasSpecial()" [class.text-muted-foreground]="!hasSpecial()">
+                  <lucide-icon [img]="hasSpecial() ? CheckIcon : XIcon" class="h-3 w-3"></lucide-icon>
+                  <span>Al menos un carácter especial</span>
+                </div>
+              </div>
             </div>
             <div class="space-y-2">
               <label for="confirm-password" class="text-sm font-medium">Confirmar *</label>

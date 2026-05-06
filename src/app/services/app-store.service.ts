@@ -24,6 +24,19 @@ export class AppStore {
   readonly sidebarCollapsed = signal(false);
   readonly theme = signal<'light' | 'dark'>('dark');
 
+  // Modals state
+  readonly showAuthModal = signal(false);
+  readonly authModalMessage = signal('');
+  readonly showConfirmModal = signal(false);
+  readonly confirmModalConfig = signal<{
+    title: string;
+    description: string;
+    confirmText: string;
+    cancelText: string;
+    isDestructive: boolean;
+    onConfirm: () => void;
+  } | null>(null);
+
   // Loading/error state
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -255,18 +268,53 @@ export class AppStore {
     }
   }
 
+  // ─── Actions ──────────────────────────────────────────────
+
+  requireAuth(action: () => void, message = 'Debes iniciar sesión para usar esta función.'): void {
+    if (this.isAuthenticated()) {
+      action();
+    } else {
+      this.authModalMessage.set(message);
+      this.showAuthModal.set(true);
+    }
+  }
+
+  confirmAction(config: {
+    title: string;
+    description: string;
+    confirmText?: string;
+    cancelText?: string;
+    isDestructive?: boolean;
+    onConfirm: () => void;
+  }): void {
+    this.confirmModalConfig.set({
+      title: config.title,
+      description: config.description,
+      confirmText: config.confirmText || 'Confirmar',
+      cancelText: config.cancelText || 'Cancelar',
+      isDestructive: config.isDestructive || false,
+      onConfirm: () => {
+        config.onConfirm();
+        this.showConfirmModal.set(false);
+      },
+    });
+    this.showConfirmModal.set(true);
+  }
+
   // ─── Favorites ──────────────────────────────────────────
   toggleFavorite(bookId: string | number): void {
-    const numId = Number(bookId);
-    if (this.favorites().includes(numId)) {
-      this.api.removeFavorite(numId).subscribe({
-        next: () => this.favorites.update((favs) => favs.filter((id) => id !== numId)),
-      });
-    } else {
-      this.api.addFavorite(numId).subscribe({
-        next: () => this.favorites.update((favs) => [...favs, numId]),
-      });
-    }
+    this.requireAuth(() => {
+      const numId = Number(bookId);
+      if (this.favorites().includes(numId)) {
+        this.api.removeFavorite(numId).subscribe({
+          next: () => this.favorites.update((favs) => favs.filter((id) => id !== numId)),
+        });
+      } else {
+        this.api.addFavorite(numId).subscribe({
+          next: () => this.favorites.update((favs) => [...favs, numId]),
+        });
+      }
+    }, 'Inicia sesión para agregar libros a tus favoritos.');
   }
 
   isFavorite(bookId: string | number): boolean {

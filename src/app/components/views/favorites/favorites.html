@@ -41,7 +41,7 @@
                 />
                 <button
                   (click)="$event.stopPropagation(); store.toggleFavorite(book.id)"
-                  class="absolute top-3 right-3 p-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full hover:scale-110 transition-transform"
+                  class="absolute top-3 right-3 p-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full hover:scale-110 active:scale-90 transition-transform"
                 >
                   <lucide-icon [img]="HeartIcon" class="h-5 w-5 fill-red-500 text-red-500"></lucide-icon>
                 </button>

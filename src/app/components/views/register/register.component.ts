@@ -1,11 +1,12 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Check, X } from 'lucide-angular';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -22,7 +23,16 @@ export class RegisterComponent {
   fechaNacimiento = signal('');
   genero = signal('M');
   pais = signal('Colombia');
-  localError = signal('');
+  localErrors = signal<string[]>([]);
+
+  // Requisitos de contraseña
+  hasLength = computed(() => this.password().length >= 8);
+  hasUpper = computed(() => /[A-Z]/.test(this.password()));
+  hasNumber = computed(() => /[0-9]/.test(this.password()));
+  hasSpecial = computed(() => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(this.password()));
+
+  readonly CheckIcon = Check;
+  readonly XIcon = X;
 
   constructor(public store: AppStore) {
     effect(() => {
@@ -35,20 +45,27 @@ export class RegisterComponent {
   register(event?: Event): void {
     if (event) event.preventDefault();
 
+    const errors: string[] = [];
+
     if (!this.username() || !this.email() || !this.firstName() || !this.password() || !this.fechaNacimiento()) {
-      this.localError.set('Todos los campos obligatorios deben completarse');
-      return;
+      errors.push('Todos los campos obligatorios deben completarse.');
+    }
+    if (this.username().length > 15) {
+      errors.push('El nombre de usuario no puede exceder los 15 caracteres.');
     }
     if (this.password() !== this.confirmPassword()) {
-      this.localError.set('Las contraseñas no coinciden');
-      return;
+      errors.push('Las contraseñas no coinciden.');
     }
-    if (this.password().length < 8) {
-      this.localError.set('La contraseña debe tener al menos 8 caracteres');
+    if (!this.hasLength() || !this.hasUpper() || !this.hasNumber() || !this.hasSpecial()) {
+      errors.push('La contraseña no cumple con todos los requisitos.');
+    }
+
+    if (errors.length > 0) {
+      this.localErrors.set(errors);
       return;
     }
 
-    this.localError.set('');
+    this.localErrors.set([]);
     this.store.register({
       username: this.username(),
       email: this.email(),

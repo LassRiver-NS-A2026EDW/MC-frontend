@@ -25,4 +25,24 @@ export class TopbarComponent {
     const target = event.target as HTMLInputElement;
     this.store.setSearchQuery(target.value);
   }
+
+  handleNotifications(): void {
+    this.store.requireAuth(() => {
+      // Implement notifications logic later
+      alert('Bandeja de notificaciones');
+    }, 'Debes iniciar sesión para ver tus notificaciones.');
+  }
+
+  handleLogout(): void {
+    this.store.confirmAction({
+      title: 'Cerrar sesión',
+      description: '¿Estás seguro que deseas cerrar sesión?',
+      confirmText: 'Cerrar sesión',
+      isDestructive: true,
+      onConfirm: () => {
+        this.store.logout();
+        this.router.navigate(['/home']);
+      }
+    });
+  }
 }

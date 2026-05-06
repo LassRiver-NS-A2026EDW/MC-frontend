@@ -65,14 +65,33 @@ export class BookDetailComponent {
   handleDeleteReview(): void {
     const review = this.userReview();
     if (review) {
-      this.store.deleteReview(String(review.id));
+      this.store.confirmAction({
+        title: 'Eliminar reseña',
+        description: '¿Estás seguro que deseas eliminar esta reseña? Esta acción no se puede deshacer.',
+        confirmText: 'Eliminar',
+        isDestructive: true,
+        onConfirm: () => {
+          this.store.deleteReview(String(review.id));
+        }
+      });
     }
   }
 
   handleFavoriteToggle(): void {
     const book = this.selectedBook;
-    if (book && this.currentUser) {
+    if (book) {
       this.store.toggleFavorite(String(book.id));
+    }
+  }
+
+  handleReserve(): void {
+    const book = this.selectedBook;
+    if (book) {
+      this.store.requireAuth(() => {
+        // Here we would implement the real reservation logic or call an API endpoint.
+        // For now, we could just alert or show a success message.
+        alert(`Has reservado "${book.title}" exitosamente.`);
+      }, 'Debes iniciar sesión para reservar un libro.');
     }
   }
 

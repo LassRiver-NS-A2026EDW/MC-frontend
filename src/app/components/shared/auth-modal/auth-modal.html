@@ -1,0 +1,27 @@
+@if (isOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+  <div class="fixed inset-0" (click)="close()"></div>
+  <div class="relative bg-card text-card-foreground shadow-lg rounded-xl border w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <button (click)="close()" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors rounded-sm opacity-70 ring-offset-background hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+      <lucide-icon [img]="XIcon" class="h-4 w-4"></lucide-icon>
+    </button>
+    <div class="flex flex-col space-y-1.5 p-6 text-center">
+      <div class="mx-auto bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-2 text-primary">
+        <lucide-icon [img]="LogInIcon" class="h-6 w-6"></lucide-icon>
+      </div>
+      <h3 class="font-semibold tracking-tight text-lg">Inicia sesión</h3>
+      <p class="text-sm text-muted-foreground">
+        {{ message() }}
+      </p>
+    </div>
+    <div class="p-6 pt-0 flex flex-col gap-2">
+      <button (click)="goToLogin()" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full">
+        Ir al Login
+      </button>
+      <button (click)="close()" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+}
