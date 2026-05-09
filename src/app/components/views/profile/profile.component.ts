@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal, effect } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, User, Mail, Shield, LogIn, Heart, MessageSquare } from 'lucide-angular';
@@ -15,14 +16,15 @@ import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.com
 })
 export class ProfileComponent {
   readonly store = inject(AppStore);
+  readonly auth = inject(AuthStore);
   readonly router = inject(Router);
 
-  editName = signal(this.store.currentUser()?.name || '');
-  editEmail = signal(this.store.currentUser()?.email || '');
+  editName = signal(this.auth.currentUser()?.name || '');
+  editEmail = signal(this.auth.currentUser()?.email || '');
 
   constructor() {
     effect(() => {
-      const user = this.store.currentUser();
+      const user = this.auth.currentUser();
       if (user) {
         this.editName.set(user.name);
         this.editEmail.set(user.email);
@@ -37,17 +39,17 @@ export class ProfileComponent {
   readonly HeartIcon = Heart;
   readonly MessageSquareIcon = MessageSquare;
 
-  get currentUser() { return this.store.currentUser(); }
+  get currentUser() { return this.auth.currentUser(); }
   get favorites() { return this.store.favorites(); }
   
   readonly userReviews = computed(() => {
-    return this.store.reviews().filter(r => r.userId === this.store.currentUser()?.id);
+    return this.store.reviews().filter(r => r.userId === this.auth.currentUser()?.id);
   });
 
   saveProfile(): void {
     if (!this.editName().trim() || !this.editEmail().trim()) {
       return;
     }
-    this.store.updateProfile({ name: this.editName(), email: this.editEmail() });
+    this.auth.updateProfile({ name: this.editName(), email: this.editEmail() });
   }
 }

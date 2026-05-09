@@ -1,23 +1,20 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common';
-import { inject, PLATFORM_ID } from '@angular/core';
+import { inject } from '@angular/core';
+import { AuthStore } from '../services/auth.store';
 
 /**
  * Interceptor funcional que inyecta el token de autenticación
  * en cada petición HTTP saliente hacia la API.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const platformId = inject(PLATFORM_ID);
-
-  if (isPlatformBrowser(platformId)) {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      req = req.clone({
-        setHeaders: {
-          Authorization: `Token ${token}`,
-        },
-      });
-    }
+  const auth = inject(AuthStore);
+  const token = auth.getToken();
+  if (token) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Token ${token}`,
+      },
+    });
   }
 
   return next(req);

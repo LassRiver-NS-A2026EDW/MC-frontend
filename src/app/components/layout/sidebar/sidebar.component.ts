@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { UiStore } from '../../../services/ui.store';
 import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, LayoutDashboard, Menu } from 'lucide-angular';
 
@@ -13,7 +14,7 @@ import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, Layout
 export class SidebarComponent {
   private router = inject(Router);
 
-  constructor(public store: AppStore, public ui: UiStore) {}
+  constructor(public store: AppStore, public auth: AuthStore, public ui: UiStore) {}
 
   readonly MenuIcon = Menu;
 
@@ -33,8 +34,8 @@ export class SidebarComponent {
 
   canAccess(roles: string[]): boolean {
     if (roles.includes('all')) return true;
-    if (!this.store.currentUser()) return false;
-    return roles.includes(this.store.currentUser()!.role);
+    if (!this.auth.currentUser()) return false;
+    return roles.includes(this.auth.currentUser()!.role);
   }
 
   navigate(view: string): void {
@@ -46,6 +47,6 @@ export class SidebarComponent {
   }
 
   getUserInitial(): string {
-    return this.store.currentUser()?.name?.charAt(0) || '?';
+    return this.auth.currentUser()?.name?.charAt(0) || '?';
   }
 }

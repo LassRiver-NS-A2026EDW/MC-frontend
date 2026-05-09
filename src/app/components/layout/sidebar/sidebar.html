@@ -42,7 +42,7 @@
     } }
   </nav>
 
-  @if (!ui.sidebarCollapsed() && store.currentUser()) {
+  @if (!ui.sidebarCollapsed() && auth.currentUser()) {
   <div class="p-4 border-t border-sidebar-border">
     <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
       <div
@@ -52,9 +52,9 @@
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium text-sidebar-foreground truncate">
-          {{ store.currentUser()?.name }}
+          {{ auth.currentUser()?.name }}
         </p>
-        <p class="text-xs text-muted-foreground truncate">{{ store.currentUser()?.role }}</p>
+        <p class="text-xs text-muted-foreground truncate">{{ auth.currentUser()?.role }}</p>
       </div>
     </div>
   </div>

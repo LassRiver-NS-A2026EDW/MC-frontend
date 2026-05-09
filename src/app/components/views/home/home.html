@@ -20,7 +20,7 @@
       <p class="text-xl md:text-2xl mb-8 opacity-95 drop-shadow">
         Tu biblioteca digital premium con la mejor colección de literatura en español
       </p>
-      @if (!store.currentUser()) {
+      @if (!auth.currentUser()) {
         <div class="flex gap-4 justify-center">
           <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 rounded-md px-8" (click)="router.navigate(['/login'])">
             Iniciar Sesión

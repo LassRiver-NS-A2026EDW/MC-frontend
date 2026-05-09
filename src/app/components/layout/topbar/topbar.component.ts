@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { UiStore } from '../../../services/ui.store';
 import { LucideAngularModule, Search, Bell, Sun, Moon, LogOut } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 export class TopbarComponent {
   readonly router = inject(Router);
 
-  constructor(public store: AppStore, public ui: UiStore) {}
+  constructor(public store: AppStore, public auth: AuthStore, public ui: UiStore) {}
 
   readonly SearchIcon = Search;
   readonly BellIcon = Bell;
@@ -28,7 +29,7 @@ export class TopbarComponent {
   }
 
   handleNotifications(): void {
-    if (this.store.isAuthenticated()) {
+    if (this.auth.isAuthenticated()) {
       // Implement notifications logic later
       alert('Bandeja de notificaciones');
       return;
@@ -43,8 +44,9 @@ export class TopbarComponent {
       confirmText: 'Cerrar sesión',
       isDestructive: true,
       onConfirm: () => {
-        this.store.logout();
-        this.router.navigate(['/home']);
+        this.auth.logout().subscribe({
+          complete: () => this.router.navigate(['/home']),
+        });
       }
     });
   }

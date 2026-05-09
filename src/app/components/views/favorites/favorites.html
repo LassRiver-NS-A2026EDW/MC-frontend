@@ -1,4 +1,4 @@
-@if (!store.currentUser()) {
+@if (!auth.currentUser()) {
   <div class="flex-1 flex items-center justify-center p-6">
     <app-empty-state
       [icon]="LogInIcon"

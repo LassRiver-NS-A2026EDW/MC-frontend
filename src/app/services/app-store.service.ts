@@ -1,17 +1,15 @@
-import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Book, Review, User, Loan, AppView } from '../models/models';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Book, Review, Loan, AppView } from '../models/models';
 import { ApiService } from './api.service';
 import { UiStore } from './ui.store';
+import { AuthStore } from './auth.store';
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
   private api = inject(ApiService);
   private ui = inject(UiStore);
-  private platformId = inject(PLATFORM_ID);
+  private auth = inject(AuthStore);
 
-  // ─── State ──────────────────────────────────────────────
-  readonly currentUser = signal<User | null>(null);
   readonly books = signal<Book[]>([]);
   readonly reviews = signal<Review[]>([]);
   readonly loans = signal<Loan[]>([]);
@@ -24,11 +22,11 @@ export class AppStore {
   readonly currentView = signal<AppView>('home');
   readonly selectedBook = signal<Book | null>(null);
 
-  // ─── Computed ───────────────────────────────────────────
-  readonly isAuthenticated = computed(() => this.currentUser() !== null);
-  readonly isAdmin = computed(() => this.currentUser()?.role === 'admin');
-  readonly isLibrarian = computed(() => this.currentUser()?.role === 'librarian');
-  readonly isAdminOrLibrarian = computed(() => this.isAdmin() || this.isLibrarian());
+  readonly currentUser = this.auth.currentUser;
+  readonly isAuthenticated = this.auth.isAuthenticated;
+  readonly isAdmin = this.auth.isAdmin;
+  readonly isLibrarian = this.auth.isLibrarian;
+  readonly isAdminOrLibrarian = this.auth.isAdminOrLibrarian;
 
   readonly filteredBooks = computed(() => {
     let list = this.books();
@@ -46,8 +44,9 @@ export class AppStore {
     if (category !== 'all') list = list.filter((b) => b.category === category);
     if (language !== 'all') list = list.filter((b) => b.language === language);
     if (rating !== 'all') list = list.filter((b) => b.rating >= Number(rating));
-    if (availability !== 'all')
+    if (availability !== 'all') {
       list = list.filter((b) => (availability === 'available' ? b.available : !b.available));
+    }
     return list;
   });
 
@@ -71,9 +70,10 @@ export class AppStore {
       totalBooks: allBooks.length,
       availableBooks: allBooks.filter((b) => b.available).length,
       categories: new Set(allBooks.map((b) => b.category)).size,
-      avgRating: allBooks.length > 0
-        ? (allBooks.reduce((acc, b) => acc + b.rating, 0) / allBooks.length).toFixed(1)
-        : '0.0',
+      avgRating:
+        allBooks.length > 0
+          ? (allBooks.reduce((acc, b) => acc + b.rating, 0) / allBooks.length).toFixed(1)
+          : '0.0',
       totalUsers: 0,
       totalLoans: allLoans.length,
       activeLoans: allLoans.filter((l) => l.status === 'active').length,
@@ -82,15 +82,9 @@ export class AppStore {
   });
 
   constructor() {
-    // Only load data in the browser (not during SSR pre-render)
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadBooks();
-      this.loadReviews();
-      this.tryRehydrate();
-    }
+    this.loadBooks();
+    this.loadReviews();
   }
-
-  // ─── Data Loading ───────────────────────────────────────
 
   loadBooks(): void {
     this.api.getBooks().subscribe({
@@ -120,94 +114,6 @@ export class AppStore {
     });
   }
 
-  private tryRehydrate(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-
-    this.api.me().subscribe({
-      next: (user) => {
-        this.currentUser.set(user);
-        this.loadFavorites();
-        this.loadLoans();
-      },
-      error: () => {
-        localStorage.removeItem('auth_token');
-      },
-    });
-  }
-
-  // ─── Auth ───────────────────────────────────────────────
-
-  login(username: string, password: string): void {
-    this.ui.loading.set(true);
-    this.ui.error.set(null);
-    this.api.login(username, password).subscribe({
-      next: (res) => {
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('auth_token', res.token);
-        }
-        this.currentUser.set(res.user);
-        this.loadFavorites();
-        this.loadLoans();
-        this.ui.loading.set(false);
-      },
-      error: (err) => {
-        this.ui.error.set(err.error?.error || 'Credenciales inválidas');
-        this.ui.loading.set(false);
-      },
-    });
-  }
-
-  register(data: {
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    password: string;
-    password2: string;
-    fecha_nacimiento: string;
-    genero: string;
-    pais: string;
-  }): void {
-    this.ui.loading.set(true);
-    this.ui.error.set(null);
-    this.api.register(data).subscribe({
-      next: (res) => {
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('auth_token', res.token);
-        }
-        this.currentUser.set(res.user);
-        this.ui.loading.set(false);
-      },
-      error: (err) => {
-        const errors = err.error;
-        const firstError = Object.values(errors || {}).flat()[0];
-        this.ui.error.set(String(firstError) || 'Error al registrar');
-        this.ui.loading.set(false);
-      },
-    });
-  }
-
-  logout(): void {
-    this.api.logout().subscribe({
-      complete: () => {
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.removeItem('auth_token');
-        }
-        this.currentUser.set(null);
-        this.favorites.set([]);
-        this.loans.set([]);
-      },
-    });
-  }
-
-  updateProfile(updates: Partial<User>): void {
-    const user = this.currentUser();
-    if (user) this.currentUser.set({ ...user, ...updates });
-  }
-
-  // ─── Navigation ─────────────────────────────────────────
   navigate(view: AppView): void {
     this.currentView.set(view);
   }
@@ -236,7 +142,6 @@ export class AppStore {
     this.availabilityFilter.set(availability);
   }
 
-  // ─── Favorites ──────────────────────────────────────────
   toggleFavorite(bookId: string | number): void {
     if (!this.isAuthenticated()) {
       this.ui.openAuthModal('Inicia sesión para agregar libros a tus favoritos.');
@@ -258,7 +163,6 @@ export class AppStore {
     return this.favorites().includes(Number(bookId));
   }
 
-  // ─── Reviews ────────────────────────────────────────────
   addReview(review: Omit<Review, 'id' | 'date'>): void {
     this.api.createReview({
       bookId: Number(review.bookId),
@@ -267,7 +171,7 @@ export class AppStore {
     }).subscribe({
       next: (newReview) => {
         this.reviews.update((r) => [...r, newReview]);
-        this.loadBooks(); // refresh ratings
+        this.loadBooks();
       },
       error: (err) => console.error('Error creando reseña:', err),
     });
@@ -302,7 +206,6 @@ export class AppStore {
     });
   }
 
-  // ─── Books (Admin) ──────────────────────────────────────
   addBook(book: Omit<Book, 'id'>): void {
     this.loadBooks();
   }
@@ -320,7 +223,6 @@ export class AppStore {
     });
   }
 
-  // ─── Loans ──────────────────────────────────────────────
   addLoan(loan: Omit<Loan, 'id'>): void {
     this.api.createLoan({
       bookId: Number(loan.bookId),

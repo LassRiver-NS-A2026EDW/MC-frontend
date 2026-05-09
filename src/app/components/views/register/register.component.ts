@@ -1,6 +1,6 @@
 import { Component, inject, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { UiStore } from '../../../services/ui.store';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
@@ -35,9 +35,9 @@ export class RegisterComponent {
   readonly CheckIcon = Check;
   readonly XIcon = X;
 
-  constructor(public store: AppStore, public ui: UiStore) {
+  constructor(public auth: AuthStore, public ui: UiStore) {
     effect(() => {
-      if (this.store.isAuthenticated()) {
+      if (this.auth.isAuthenticated()) {
         this.router.navigate(['/home']);
       }
     });
@@ -69,7 +69,7 @@ export class RegisterComponent {
     this.localErrors.set([]);
     this.ui.loading.set(true);
     this.ui.error.set(null);
-    this.store.register({
+    this.auth.register({
       username: this.username(),
       email: this.email(),
       first_name: this.firstName(),
@@ -79,6 +79,14 @@ export class RegisterComponent {
       fecha_nacimiento: this.fechaNacimiento(),
       genero: this.genero(),
       pais: this.pais(),
+    }).subscribe({
+      next: () => this.ui.loading.set(false),
+      error: (err) => {
+        const errors = err.error;
+        const firstError = Object.values(errors || {}).flat()[0];
+        this.ui.error.set(String(firstError) || 'Error al registrar');
+        this.ui.loading.set(false);
+      },
     });
   }
 

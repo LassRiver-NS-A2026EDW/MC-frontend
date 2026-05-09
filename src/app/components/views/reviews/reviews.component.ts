@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, MessageSquare, LogIn } from 'lucide-angular';
@@ -14,12 +15,13 @@ import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.com
 })
 export class ReviewsComponent {
   readonly store = inject(AppStore);
+  readonly auth = inject(AuthStore);
   readonly router = inject(Router);
 
   readonly MessageSquareIcon = MessageSquare;
   readonly LogInIcon = LogIn;
 
-  get currentUser() { return this.store.currentUser(); }
+  get currentUser() { return this.auth.currentUser(); }
   get userReviews() { return this.store.userReviews(); }
   get books() { return this.store.books(); }
 

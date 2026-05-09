@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Heart, LogIn } from 'lucide-angular';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
@@ -13,6 +14,7 @@ import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.com
 })
 export class FavoritesComponent {
   readonly store = inject(AppStore);
+  readonly auth = inject(AuthStore);
   readonly router = inject(Router);
 
   readonly HeartIcon = Heart;

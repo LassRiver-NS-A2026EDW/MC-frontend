@@ -1,5 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Book } from '../../../models/models';
@@ -46,7 +47,7 @@ export class AdminComponent {
   showLoanForm = signal(false);
   loanForm = signal({ bookId: '', userId: '', userName: '', dueDate: '' });
 
-  constructor(public store: AppStore) {}
+  constructor(public store: AppStore, public auth: AuthStore) {}
 
   get stats() {
     return this.store.stats();

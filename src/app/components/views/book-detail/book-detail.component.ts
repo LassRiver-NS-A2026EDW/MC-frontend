@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
 import { UiStore } from '../../../services/ui.store';
+import { AuthStore } from '../../../services/auth.store';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ArrowLeft, Heart, Star, Calendar, BookOpen, Globe, Building2, LogIn } from 'lucide-angular';
@@ -17,6 +18,7 @@ import { StatusBadgeComponent } from '../../shared/status-badge/status-badge.com
 export class BookDetailComponent {
   readonly store = inject(AppStore);
   readonly ui = inject(UiStore);
+  readonly auth = inject(AuthStore);
   readonly router = inject(Router);
 
   readonly ArrowLeftIcon = ArrowLeft;
@@ -32,7 +34,7 @@ export class BookDetailComponent {
   comment = signal('');
 
   get selectedBook() { return this.store.selectedBook(); }
-  get currentUser() { return this.store.currentUser(); }
+  get currentUser() { return this.auth.currentUser(); }
 
   readonly bookReviews = computed(() => {
     return this.store.reviews().filter(r => String(r.bookId) === String(this.selectedBook?.id));
@@ -89,7 +91,7 @@ export class BookDetailComponent {
   handleReserve(): void {
     const book = this.selectedBook;
     if (book) {
-      if (this.store.isAuthenticated()) {
+      if (this.auth.isAuthenticated()) {
         // Here we would implement the real reservation logic or call an API endpoint.
         // For now, we could just alert or show a success message.
         alert(`Has reservado "${book.title}" exitosamente.`);

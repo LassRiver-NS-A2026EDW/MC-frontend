@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { AuthStore } from '../../../services/auth.store';
 import { LucideAngularModule, BookOpen, TrendingUp, Users, Star } from 'lucide-angular';
 
 @Component({
@@ -13,6 +14,7 @@ import { LucideAngularModule, BookOpen, TrendingUp, Users, Star } from 'lucide-a
 })
 export class HomeComponent {
   readonly store = inject(AppStore);
+  readonly auth = inject(AuthStore);
   readonly router = inject(Router);
 
   readonly BookOpenIcon = BookOpen;
