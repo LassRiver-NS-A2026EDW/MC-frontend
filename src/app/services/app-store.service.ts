@@ -20,7 +20,6 @@ export class AppStore {
   readonly ratingFilter = signal('all');
   readonly availabilityFilter = signal('all');
   readonly currentView = signal<AppView>('home');
-  readonly selectedBook = signal<Book | null>(null);
 
   readonly currentUser = this.auth.currentUser;
   readonly isAuthenticated = this.auth.isAuthenticated;
@@ -116,10 +115,6 @@ export class AppStore {
 
   navigate(view: AppView): void {
     this.currentView.set(view);
-  }
-
-  selectBook(book: Book | null): void {
-    this.selectedBook.set(book);
   }
 
   setSearchQuery(query: string): void {

@@ -1,7 +1,15 @@
-@if (!selectedBook) {
-  <div class="p-6"></div>
+@if (!book()) {
+  <div class="flex-1 flex items-center justify-center p-6">
+    <app-empty-state
+      [icon]="BookOpenIcon"
+      title="Libro no encontrado"
+      description="No pudimos cargar este libro desde la ruta actual."
+      actionLabel="Volver al catálogo"
+      (onAction)="goBack()"
+    ></app-empty-state>
+  </div>
 } @else {
-  @let book = selectedBook!;
+  @let detailBook = book()!;
   <div class="flex-1 overflow-auto">
     <div class="p-6 space-y-6">
       <button
@@ -17,35 +25,35 @@
           <div class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden sticky top-6">
             <div class="aspect-[3/4] bg-muted">
               <img
-                [src]="book.coverUrl"
-                [alt]="book.title"
+                [src]="detailBook.coverUrl"
+                [alt]="detailBook.title"
                 class="w-full h-full object-cover"
               />
             </div>
             <div class="p-4 space-y-3">
               <button
                 class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 w-full"
-                [class.bg-secondary]="store.isFavorite(book.id)"
-                [class.text-secondary-foreground]="store.isFavorite(book.id)"
-                [class.hover:bg-secondary/80]="store.isFavorite(book.id)"
-                [class.bg-primary]="!store.isFavorite(book.id)"
-                [class.text-primary-foreground]="!store.isFavorite(book.id)"
-                [class.hover:bg-primary/90]="!store.isFavorite(book.id)"
+                [class.bg-secondary]="store.isFavorite(detailBook.id)"
+                [class.text-secondary-foreground]="store.isFavorite(detailBook.id)"
+                [class.hover:bg-secondary/80]="store.isFavorite(detailBook.id)"
+                [class.bg-primary]="!store.isFavorite(detailBook.id)"
+                [class.text-primary-foreground]="!store.isFavorite(detailBook.id)"
+                [class.hover:bg-primary/90]="!store.isFavorite(detailBook.id)"
                 (click)="handleFavoriteToggle()"
               >
                 <lucide-icon
                   [img]="HeartIcon"
                   class="h-4 w-4 mr-2"
-                  [class.fill-current]="store.isFavorite(book.id)"
+                  [class.fill-current]="store.isFavorite(detailBook.id)"
                 ></lucide-icon>
-                {{ store.isFavorite(book.id) ? 'En Favoritos' : 'Agregar a Favoritos' }}
+                {{ store.isFavorite(detailBook.id) ? 'En Favoritos' : 'Agregar a Favoritos' }}
               </button>
               <button
                 class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full"
-                [disabled]="!book.available"
+                [disabled]="!detailBook.available"
                 (click)="handleReserve()"
               >
-                {{ book.available ? 'Reservar Libro' : 'No Disponible' }}
+                {{ detailBook.available ? 'Reservar Libro' : 'No Disponible' }}
               </button>
             </div>
           </div>
@@ -53,23 +61,23 @@
 
         <div class="lg:col-span-2 space-y-6">
           <div>
-            <h1 class="text-3xl font-bold text-foreground mb-2">{{ book.title }}</h1>
-            <p class="text-xl text-muted-foreground mb-4">{{ book.author }}</p>
+            <h1 class="text-3xl font-bold text-foreground mb-2">{{ detailBook.title }}</h1>
+            <p class="text-xl text-muted-foreground mb-4">{{ detailBook.author }}</p>
 
             <div class="flex items-center gap-4 mb-6">
-              <app-rating-stars [rating]="book.rating" [readonly]="true" size="lg" [showLabel]="true"></app-rating-stars>
+              <app-rating-stars [rating]="detailBook.rating" [readonly]="true" size="lg" [showLabel]="true"></app-rating-stars>
               <span class="text-sm text-muted-foreground">
-                ({{ book.reviewCount }} reseñas)
+                ({{ detailBook.reviewCount }} reseñas)
               </span>
-              <app-status-badge [status]="book.available ? 'available' : 'unavailable'"></app-status-badge>
+              <app-status-badge [status]="detailBook.available ? 'available' : 'unavailable'"></app-status-badge>
             </div>
 
             <div class="flex flex-wrap gap-2 mb-6">
               <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
-                {{ book.category }}
+                {{ detailBook.category }}
               </div>
               <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                {{ book.language }}
+                {{ detailBook.language }}
               </div>
             </div>
 
@@ -82,7 +90,7 @@
                   <lucide-icon [img]="Building2Icon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
                   <div>
                     <p class="text-sm font-medium">Editorial</p>
-                    <p class="text-sm text-muted-foreground">{{ book.publisher }}</p>
+                    <p class="text-sm text-muted-foreground">{{ detailBook.publisher }}</p>
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
@@ -90,7 +98,7 @@
                   <div>
                     <p class="text-sm font-medium">Fecha de Publicación</p>
                     <p class="text-sm text-muted-foreground">
-                      {{ formatDate(book.publishDate) }}
+                      {{ formatDate(detailBook.publishDate) }}
                     </p>
                   </div>
                 </div>
@@ -98,14 +106,14 @@
                   <lucide-icon [img]="BookOpenIcon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
                   <div>
                     <p class="text-sm font-medium">Páginas</p>
-                    <p class="text-sm text-muted-foreground">{{ book.pages }}</p>
+                    <p class="text-sm text-muted-foreground">{{ detailBook.pages }}</p>
                   </div>
                 </div>
                 <div class="flex items-start gap-3">
                   <lucide-icon [img]="GlobeIcon" class="h-5 w-5 text-muted-foreground mt-0.5"></lucide-icon>
                   <div>
                     <p class="text-sm font-medium">ISBN</p>
-                    <p class="text-sm text-muted-foreground">{{ book.isbn }}</p>
+                    <p class="text-sm text-muted-foreground">{{ detailBook.isbn }}</p>
                   </div>
                 </div>
               </div>
@@ -116,7 +124,7 @@
                 <h3 class="font-semibold leading-none tracking-tight">Descripción</h3>
               </div>
               <div class="p-6 pt-0">
-                <p class="text-muted-foreground leading-relaxed">{{ book.description }}</p>
+                <p class="text-muted-foreground leading-relaxed">{{ detailBook.description }}</p>
               </div>
             </div>
           </div>

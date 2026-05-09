@@ -30,10 +30,6 @@ export class ReviewsComponent {
   }
 
   handleBookClick(bookId: string | number): void {
-    const book = this.getBook(bookId);
-    if (book) {
-      this.store.selectBook(book);
-      this.router.navigate(['/book-detail']);
-    }
+    this.router.navigate(['/books', bookId]);
   }
 }

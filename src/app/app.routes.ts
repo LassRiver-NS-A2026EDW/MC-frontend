@@ -15,7 +15,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'catalog', component: CatalogComponent },
-  { path: 'book-detail', component: BookDetailComponent },
+  { path: 'books/:id', component: BookDetailComponent },
   { path: 'favorites', component: FavoritesComponent },
   { path: 'reviews', component: ReviewsComponent },
   { path: 'profile', component: ProfileComponent },

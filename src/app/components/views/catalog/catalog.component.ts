@@ -39,11 +39,7 @@ export class CatalogComponent {
   ];
 
   viewBookDetail(bookId: string | number): void {
-    const book = this.store.books().find(b => String(b.id) === String(bookId));
-    if (book) {
-      this.store.selectBook(book);
-      this.router.navigate(['/book-detail']);
-    }
+    this.router.navigate(['/books', bookId]);
   }
 
   clearFilters(): void {

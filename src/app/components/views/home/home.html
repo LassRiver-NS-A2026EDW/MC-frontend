@@ -96,7 +96,7 @@
         @for (book of featuredBooks(); track book.id) {
           <div
             class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-            (click)="router.navigate(['/catalog'])"
+            (click)="router.navigate(['/books', book.id])"
           >
             <div class="aspect-[3/4] bg-muted">
               <img
@@ -126,7 +126,7 @@
         <div class="flex flex-wrap gap-2">
           @for (category of categories(); track category) {
             <div
-              class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+            class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
               (click)="router.navigate(['/catalog'])"
             >
               {{ category }}

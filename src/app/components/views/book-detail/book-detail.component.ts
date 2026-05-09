@@ -1,13 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { UiStore } from '../../../services/ui.store';
 import { AuthStore } from '../../../services/auth.store';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ArrowLeft, Heart, Star, Calendar, BookOpen, Globe, Building2, LogIn } from 'lucide-angular';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import { RatingStarsComponent } from '../../shared/rating-stars/rating-stars.component';
 import { StatusBadgeComponent } from '../../shared/status-badge/status-badge.component';
+import { Book } from '../../../models/models';
 
 @Component({
   selector: 'app-book-detail',
@@ -19,6 +20,7 @@ export class BookDetailComponent {
   readonly store = inject(AppStore);
   readonly ui = inject(UiStore);
   readonly auth = inject(AuthStore);
+  readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
 
   readonly ArrowLeftIcon = ArrowLeft;
@@ -32,12 +34,18 @@ export class BookDetailComponent {
 
   rating = signal(5);
   comment = signal('');
+  readonly bookId = signal(this.route.snapshot.paramMap.get('id'));
 
-  get selectedBook() { return this.store.selectedBook(); }
   get currentUser() { return this.auth.currentUser(); }
 
+  readonly book = computed(() => {
+    const id = this.bookId();
+    if (!id) return null;
+    return this.store.books().find((book) => String(book.id) === String(id)) ?? null;
+  });
+
   readonly bookReviews = computed(() => {
-    return this.store.reviews().filter(r => String(r.bookId) === String(this.selectedBook?.id));
+    return this.store.reviews().filter((r) => String(r.bookId) === String(this.book()?.id));
   });
 
   readonly userReview = computed(() => {
@@ -49,7 +57,7 @@ export class BookDetailComponent {
   }
 
   handleSubmitReview(): void {
-    const book = this.selectedBook;
+    const book = this.book();
     const user = this.currentUser;
     if (!user || !book) return;
     if (!this.comment().trim()) return;
@@ -82,14 +90,14 @@ export class BookDetailComponent {
   }
 
   handleFavoriteToggle(): void {
-    const book = this.selectedBook;
+    const book = this.book();
     if (book) {
       this.store.toggleFavorite(String(book.id));
     }
   }
 
   handleReserve(): void {
-    const book = this.selectedBook;
+    const book = this.book();
     if (book) {
       if (this.auth.isAuthenticated()) {
         // Here we would implement the real reservation logic or call an API endpoint.
