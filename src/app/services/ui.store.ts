@@ -6,7 +6,7 @@ export class UiStore {
   private platformId = inject(PLATFORM_ID);
 
   readonly sidebarCollapsed = signal(false);
-  readonly theme = signal<'light' | 'dark'>('dark');
+  readonly theme = signal<'light' | 'dark'>(this.readInitialTheme());
   readonly showAuthModal = signal(false);
   readonly authModalMessage = signal('');
   readonly showConfirmModal = signal(false);
@@ -35,7 +35,19 @@ export class UiStore {
   }
 
   toggleTheme(): void {
-    this.theme.update((value) => (value === 'light' ? 'dark' : 'light'));
+    this.theme.update((value) => {
+      const next = value === 'light' ? 'dark' : 'light';
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('app-theme', next);
+      }
+      return next;
+    });
+  }
+
+  private readInitialTheme(): 'light' | 'dark' {
+    if (!isPlatformBrowser(this.platformId)) return 'dark';
+    const stored = localStorage.getItem('app-theme');
+    return stored === 'light' || stored === 'dark' ? stored : 'dark';
   }
 
   openAuthModal(message = 'Debes iniciar sesión para usar esta función.'): void {
