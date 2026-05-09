@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Book, Review, User, Loan } from '../models/models';
+import { environment } from "../../environments/environment"
 
 /**
  * Servicio centralizado para comunicación con el backend Django.
@@ -10,7 +11,7 @@ import { Book, Review, User, Loan } from '../models/models';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = '/api';
+  private baseUrl = environment.apiUrl;
 
   // ─── Auth ───────────────────────────────────────────────
 
