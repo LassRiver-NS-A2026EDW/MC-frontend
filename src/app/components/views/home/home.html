@@ -1,139 +1,103 @@
-<div class="flex-1 overflow-auto">
-  <div class="relative h-96 bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center text-white overflow-hidden">
-    <div class="absolute inset-0 bg-black/20"></div>
-    <!-- Patrón de ondas en el hero -->
-    <div class="absolute inset-0 opacity-10">
-      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="hero-waves" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-            <path d="M0 100 Q 50 50, 100 100 T 200 100" stroke="white" stroke-width="2" fill="none"/>
-            <path d="M0 120 Q 50 70, 100 120 T 200 120" stroke="white" stroke-width="2" fill="none"/>
-            <path d="M0 140 Q 50 90, 100 140 T 200 140" stroke="white" stroke-width="1.5" fill="none"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#hero-waves)" />
-      </svg>
-    </div>
-    <div class="relative z-10 text-center px-6 max-w-4xl">
-      <img src="/logo.png" alt="LassRiver NS" class="h-24 mx-auto mb-8 drop-shadow-2xl" />
-      <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">Bienvenido a LassRiver NS</h1>
-      <p class="text-xl md:text-2xl mb-8 opacity-95 drop-shadow">
-        Tu biblioteca digital premium con la mejor colección de literatura en español
-      </p>
-      @if (!auth.currentUser()) {
-        <div class="flex gap-4 justify-center">
-          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 rounded-md px-8" (click)="router.navigate(['/login'])">
-            Iniciar Sesión
+<div class="flex-1 overflow-auto custom-scroll mesh-bg min-h-screen transition-colors duration-500">
+  
+  <section class="relative pt-24 pb-32 px-6 lg:px-12 overflow-hidden">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center">
+      
+      <div class="lg:col-span-7 space-y-8 animate-in" style="animation-delay: 0.1s">
+        <div class="flex items-center gap-3">
+          <span class="h-[1px] w-12 bg-primary"></span>
+          <span class="text-primary uppercase tracking-[0.4em] text-[10px] font-black">LassRiver NS</span>
+        </div>
+        
+        <h1 class="text-7xl lg:text-9xl font-black tracking-tighter text-reveal leading-[0.85]">
+          Lee el <br>
+          <span class="text-primary italic">Futuro.</span>
+        </h1>
+
+        <p class="text-text-muted text-lg max-w-lg leading-relaxed font-light">
+          No es solo una biblioteca. Es un ecosistema digital diseñado para la nueva era de la literatura. <span class="text-white font-medium">Contenido curado, experiencia inmersiva.</span>
+        </p>
+
+        <div class="flex flex-wrap gap-6 pt-4">
+          <button (click)="router.navigate(['/catalog'])" 
+                  class="group h-16 px-10 bg-primary text-white font-bold rounded-full flex items-center gap-3 transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(24,152,168,0.4)]">
+            <span>Comenzar Lectura</span>
+            <lucide-icon [img]="TrendingUpIcon" class="h-5 w-5 group-hover:translate-x-1 transition-transform"></lucide-icon>
           </button>
-          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border h-11 rounded-md px-8 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20" (click)="router.navigate(['/register'])">
+          
+          <button (click)="router.navigate(['/register'])"
+                  class="h-16 px-10 rounded-full border border-white/10 text-white font-bold hover:bg-white/5 transition-all backdrop-blur-md">
             Registrarse
           </button>
         </div>
-      } @else {
-        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 rounded-md px-8" (click)="router.navigate(['/catalog'])">
-          Explorar Catálogo
-        </button>
-      }
-    </div>
-  </div>
+      </div>
 
-  <div class="p-6 space-y-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="p-6 flex items-center gap-4">
-          <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <lucide-icon [img]="BookOpenIcon" class="h-6 w-6 text-primary"></lucide-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ stats().totalBooks }}</p>
-            <p class="text-sm text-muted-foreground">Libros Totales</p>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="p-6 flex items-center gap-4">
-          <div class="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center">
-            <lucide-icon [img]="TrendingUpIcon" class="h-6 w-6 text-accent"></lucide-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ stats().availableBooks }}</p>
-            <p class="text-sm text-muted-foreground">Disponibles</p>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="p-6 flex items-center gap-4">
-          <div class="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-            <lucide-icon [img]="UsersIcon" class="h-6 w-6 text-secondary"></lucide-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ stats().categories }}</p>
-            <p class="text-sm text-muted-foreground">Categorías</p>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="p-6 flex items-center gap-4">
-          <div class="h-12 w-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-            <lucide-icon [img]="StarIcon" class="h-6 w-6 text-yellow-500"></lucide-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ stats().avgRating }}</p>
-            <p class="text-sm text-muted-foreground">Rating Promedio</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold">Libros Destacados</h2>
-        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2" (click)="router.navigate(['/catalog'])">
-          Ver todos
-        </button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        @for (book of featuredBooks(); track book.id) {
-          <div
-            class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-            (click)="router.navigate(['/books', book.id])"
-          >
-            <div class="aspect-[3/4] bg-muted">
-              <img
-                [src]="book.coverUrl"
-                [alt]="book.title"
-                class="w-full h-full object-cover"
-              />
+      <div class="lg:col-span-5 grid grid-cols-2 gap-4 animate-in" style="animation-delay: 0.3s">
+        @for (item of [
+          { lab: 'Títulos', val: stats().totalBooks, icon: BookOpenIcon, color: 'var(--primary)' },
+          { lab: 'Rating', val: stats().avgRating, icon: StarIcon, color: '#f59e0b' },
+          { lab: 'Géneros', val: stats().categories, icon: UsersIcon, color: 'var(--accent)' },
+          { lab: 'Disponibles', val: stats().availableBooks, icon: TrendingUpIcon, color: 'var(--river-cyan)' }
+        ]; track item.lab) {
+          <div class="glass-stat p-8 rounded-[2.5rem] flex flex-col justify-between aspect-square">
+            <div class="h-12 w-12 rounded-2xl flex items-center justify-center" [style.background]="item.color + '10'" [style.color]="item.color">
+              <lucide-icon [img]="item.icon" class="h-6 w-6"></lucide-icon>
             </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm line-clamp-1">{{ book.title }}</h3>
-              <p class="text-xs text-muted-foreground line-clamp-1">{{ book.author }}</p>
-              <div class="flex items-center gap-1 mt-2">
-                <lucide-icon [img]="StarIcon" class="h-3 w-3 fill-yellow-400 text-yellow-400"></lucide-icon>
-                <span class="text-xs font-medium">{{ book.rating.toFixed(1) }}</span>
-              </div>
+            <div>
+              <div class="text-4xl font-bold text-white tracking-tighter mb-1">{{ item.val }}</div>
+              <div class="text-[10px] uppercase tracking-widest text-text-muted font-bold">{{ item.lab }}</div>
             </div>
           </div>
         }
       </div>
     </div>
+  </section>
 
-    <div class="rounded-xl border bg-card text-card-foreground shadow">
-      <div class="flex flex-col space-y-1.5 p-6">
-        <h3 class="font-semibold leading-none tracking-tight">Categorías Populares</h3>
-      </div>
-      <div class="p-6 pt-0">
-        <div class="flex flex-wrap gap-2">
-          @for (category of categories(); track category) {
-            <div
-            class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
-              (click)="router.navigate(['/catalog'])"
-            >
-              {{ category }}
-            </div>
-          }
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
+    
+    <section class="animate-in" style="animation-delay: 0.5s">
+      <div class="flex items-end justify-between mb-16">
+        <div>
+          <h2 class="text-4xl font-black text-foreground tracking-tighter italic">Selección Editorial</h2>
+          <div class="h-1 w-20 bg-accent mt-4"></div>
         </div>
+        <button (click)="router.navigate(['/catalog'])" class="text-xs font-black tracking-widest text-primary hover:text-accent transition-colors">
+          EXPLORAR TODO →
+        </button>
       </div>
-    </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-16">
+        @for (book of featuredBooks(); track book.id) {
+          <div class="group cursor-pointer" (click)="router.navigate(['/books', book.id])">
+            <div class="relative mb-6">
+              <div class="absolute -inset-2 bg-primary/20 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div class="relative aspect-[2/3] rounded-[1.8rem] overflow-hidden shadow-2xl transition-transform duration-500 group-hover:-translate-y-4">
+                <img [src]="book.coverUrl" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                  <span class="text-white text-[10px] font-bold tracking-widest uppercase">Ver Detalles</span>
+                </div>
+              </div>
+            </div>
+            <h3 class="text-foreground font-black text-sm mb-1 line-clamp-1 tracking-tight">{{ book.title }}</h3>
+            <p class="text-text-muted text-[10px] uppercase tracking-widest font-bold">{{ book.author }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="mt-32 p-12 rounded-[3rem] bg-surface border border-white/5 animate-in" style="animation-delay: 0.6s">
+      <h3 class="text-lg font-bold text-white mb-8 flex items-center gap-4">
+        <lucide-icon [img]="UsersIcon" class="h-5 w-5 text-accent"></lucide-icon>
+        Explorar por Género
+      </h3>
+      <div class="flex flex-wrap gap-3">
+        @for (cat of categories(); track cat) {
+          <button (click)="router.navigate(['/catalog'])" 
+                  class="px-8 py-3 rounded-full bg-white/[0.02] border border-white/5 text-white/60 text-xs font-bold hover:bg-primary hover:text-white hover:border-primary transition-all">
+            {{ cat }}
+          </button>
+        }
+      </div>
+    </section>
   </div>
 </div>

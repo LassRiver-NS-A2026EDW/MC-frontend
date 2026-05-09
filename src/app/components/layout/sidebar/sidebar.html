@@ -3,60 +3,89 @@
   [class.w-64]="!ui.sidebarCollapsed()"
   class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300"
 >
-  <div class="p-6 border-b border-sidebar-border">
-    <div class="flex items-center justify-between mb-1">
-      @if (!ui.sidebarCollapsed()) {
-      <div class="flex items-center gap-2">
-        <img src="/logo.png" alt="LassRiver NS" class="h-12 w-auto" />
+  <div class="border-b border-sidebar-border px-4 py-3 min-h-[72px] flex flex-col justify-center">
+    <div class="flex items-center">
+      <div
+        class="flex items-center gap-3 overflow-hidden transition-all duration-300"
+        [class.w-0]="ui.sidebarCollapsed()"
+        [class.opacity-0]="ui.sidebarCollapsed()"
+        [class.w-full]="!ui.sidebarCollapsed()"
+      >
+        <div class="flex-shrink-0 bg-primary/10 p-1.5 rounded-xl">
+          <img src="/logo.png" alt="LassRiver NS" class="h-8 w-8 object-contain" />
+        </div>
+
+        <div class="flex flex-col min-w-0">
+          <span class="text-sm font-bold tracking-tight truncate text-foreground">
+            LassRiver NS
+          </span>
+          <span
+            class="text-[10px] font-medium uppercase tracking-widest text-muted-foreground truncate"
+          >
+            Digital Library
+          </span>
+        </div>
       </div>
-      }
+
       <button
         (click)="ui.toggleSidebar()"
-        class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors ml-auto"
+        class="p-2 hover:bg-sidebar-accent rounded-xl transition-all duration-200 group relative"
+        [class.mx-auto]="ui.sidebarCollapsed()"
+        [class.ml-auto]="!ui.sidebarCollapsed()"
+        title="Alternar menú"
       >
-        <lucide-icon [img]="MenuIcon" class="h-5 w-5 text-sidebar-foreground"></lucide-icon>
+        <lucide-icon
+          [img]="MenuIcon"
+          class="h-5 w-5 text-sidebar-foreground group-hover:text-primary transition-colors"
+        >
+        </lucide-icon>
+
+        @if (ui.sidebarCollapsed()) {
+          <span
+            class="absolute right-0 top-0 block h-2 w-2 rounded-full bg-primary ring-2 ring-background"
+          ></span>
+        }
       </button>
     </div>
-    @if (!ui.sidebarCollapsed()) {
-    <p class="text-xs text-muted-foreground mt-2">Biblioteca Digital Premium</p>
-    }
   </div>
 
   <nav class="flex-1 p-4 space-y-2">
-    @for (item of navItems; track item.id) { @if (canAccess(item.roles)) {
-    <button
-      (click)="navigate(item.id)"
-      class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
-      [class.bg-sidebar-primary]="isActive(item.id)"
-      [class.text-sidebar-primary-foreground]="isActive(item.id)"
-      [class.text-sidebar-foreground]="!isActive(item.id)"
-      [class.hover:bg-sidebar-accent]="!isActive(item.id)"
-      [class.shadow-sm]="isActive(item.id)"
-    [class.justify-center]="ui.sidebarCollapsed()"
-    >
-      <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0"></lucide-icon>
-      @if (!ui.sidebarCollapsed()) {
-      <span>{{ item.label }}</span>
+    @for (item of navItems; track item.id) {
+      @if (canAccess(item.roles)) {
+        <button
+          (click)="navigate(item.id)"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+          [class.bg-sidebar-primary]="isActive(item.id)"
+          [class.text-sidebar-primary-foreground]="isActive(item.id)"
+          [class.text-sidebar-foreground]="!isActive(item.id)"
+          [class.hover:bg-sidebar-accent]="!isActive(item.id)"
+          [class.shadow-sm]="isActive(item.id)"
+          [class.justify-center]="ui.sidebarCollapsed()"
+        >
+          <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0"></lucide-icon>
+          @if (!ui.sidebarCollapsed()) {
+            <span>{{ item.label }}</span>
+          }
+        </button>
       }
-    </button>
-    } }
+    }
   </nav>
 
   @if (!ui.sidebarCollapsed() && auth.currentUser()) {
-  <div class="p-4 border-t border-sidebar-border">
-    <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
-      <div
-        class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-      >
-        {{ getUserInitial() }}
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-sidebar-foreground truncate">
-          {{ auth.currentUser()?.name }}
-        </p>
-        <p class="text-xs text-muted-foreground truncate">{{ auth.currentUser()?.role }}</p>
+    <div class="p-4 border-t border-sidebar-border">
+      <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
+        <div
+          class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+        >
+          {{ getUserInitial() }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-sidebar-foreground truncate">
+            {{ auth.currentUser()?.name }}
+          </p>
+          <p class="text-xs text-muted-foreground truncate">{{ auth.currentUser()?.role }}</p>
+        </div>
       </div>
     </div>
-  </div>
   }
 </div>
