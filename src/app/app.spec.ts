@@ -1,10 +1,24 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { App } from './app';
+import { ApiService } from './services/api.service';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [
+        {
+          provide: ApiService,
+          useValue: {
+            getBooks: () => of([]),
+            getReviews: () => of([]),
+            getLoans: () => of([]),
+            getFavorites: () => of([]),
+            me: () => of(null),
+          },
+        },
+      ],
     }).compileComponents();
   });
 
@@ -18,6 +32,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ModelosComputacion_AngularFrontend');
+    expect(compiled.querySelector('.h-screen')).toBeTruthy();
   });
 });

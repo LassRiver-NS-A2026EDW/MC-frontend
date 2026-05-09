@@ -9,11 +9,11 @@ COPY . .
 RUN npm run build
 
 # ---- Production Stage ----
-FROM node:22-alpine
-WORKDIR /app
+FROM nginx:alpine
 
-COPY --from=build /app/dist /app/dist
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/ModelosComputacion_AngularFrontend/browser /usr/share/nginx/html
 
-EXPOSE 4000
+EXPOSE 80
 
-CMD ["node", "dist/ModelosComputacion_AngularFrontend/server/server.mjs"]
+CMD ["nginx", "-g", "daemon off;"]
