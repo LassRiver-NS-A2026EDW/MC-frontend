@@ -1,23 +1,23 @@
 <div
-  [class.w-20]="store.sidebarCollapsed()"
-  [class.w-64]="!store.sidebarCollapsed()"
+  [class.w-20]="ui.sidebarCollapsed()"
+  [class.w-64]="!ui.sidebarCollapsed()"
   class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300"
 >
   <div class="p-6 border-b border-sidebar-border">
     <div class="flex items-center justify-between mb-1">
-      @if (!store.sidebarCollapsed()) {
+      @if (!ui.sidebarCollapsed()) {
       <div class="flex items-center gap-2">
         <img src="/logo.png" alt="LassRiver NS" class="h-12 w-auto" />
       </div>
       }
       <button
-        (click)="store.toggleSidebar()"
+        (click)="ui.toggleSidebar()"
         class="p-2 hover:bg-sidebar-accent rounded-lg transition-colors ml-auto"
       >
         <lucide-icon [img]="MenuIcon" class="h-5 w-5 text-sidebar-foreground"></lucide-icon>
       </button>
     </div>
-    @if (!store.sidebarCollapsed()) {
+    @if (!ui.sidebarCollapsed()) {
     <p class="text-xs text-muted-foreground mt-2">Biblioteca Digital Premium</p>
     }
   </div>
@@ -32,17 +32,17 @@
       [class.text-sidebar-foreground]="!isActive(item.id)"
       [class.hover:bg-sidebar-accent]="!isActive(item.id)"
       [class.shadow-sm]="isActive(item.id)"
-      [class.justify-center]="store.sidebarCollapsed()"
+    [class.justify-center]="ui.sidebarCollapsed()"
     >
       <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0"></lucide-icon>
-      @if (!store.sidebarCollapsed()) {
+      @if (!ui.sidebarCollapsed()) {
       <span>{{ item.label }}</span>
       }
     </button>
     } }
   </nav>
 
-  @if (!store.sidebarCollapsed() && store.currentUser()) {
+  @if (!ui.sidebarCollapsed() && store.currentUser()) {
   <div class="p-4 border-t border-sidebar-border">
     <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
       <div

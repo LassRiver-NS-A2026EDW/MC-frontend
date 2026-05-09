@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { UiStore } from '../../../services/ui.store';
 import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, LayoutDashboard, Menu } from 'lucide-angular';
 
 @Component({
@@ -12,7 +13,7 @@ import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, Layout
 export class SidebarComponent {
   private router = inject(Router);
 
-  constructor(public store: AppStore) {}
+  constructor(public store: AppStore, public ui: UiStore) {}
 
   readonly MenuIcon = Menu;
 

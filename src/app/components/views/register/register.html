@@ -27,10 +27,10 @@
 
       <form (submit)="register($event)">
         <div class="p-6 pt-0 space-y-4">
-          @if (localErrors().length > 0 || store.error()) {
+          @if (localErrors().length > 0 || ui.error()) {
           <div class="bg-destructive/10 text-destructive text-sm p-4 rounded-lg">
-            @if (store.error()) {
-              <p>{{ store.error() }}</p>
+            @if (ui.error()) {
+              <p>{{ ui.error() }}</p>
             }
             @if (localErrors().length > 0) {
               <ul class="list-disc pl-5 space-y-1">
@@ -189,10 +189,10 @@
         <div class="flex items-center p-6 pt-0 flex-col gap-4">
           <button
             type="submit"
-            [disabled]="store.loading()"
+            [disabled]="ui.loading()"
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
           >
-            {{ store.loading() ? 'Creando cuenta...' : 'Crear Cuenta' }}
+            {{ ui.loading() ? 'Creando cuenta...' : 'Crear Cuenta' }}
           </button>
 
           <p class="text-sm text-muted-foreground text-center">

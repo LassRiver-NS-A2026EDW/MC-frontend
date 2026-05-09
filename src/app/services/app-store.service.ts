@@ -2,10 +2,12 @@ import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { Book, Review, User, Loan, AppView } from '../models/models';
 import { ApiService } from './api.service';
+import { UiStore } from './ui.store';
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
   private api = inject(ApiService);
+  private ui = inject(UiStore);
   private platformId = inject(PLATFORM_ID);
 
   // ─── State ──────────────────────────────────────────────
@@ -21,25 +23,6 @@ export class AppStore {
   readonly availabilityFilter = signal('all');
   readonly currentView = signal<AppView>('home');
   readonly selectedBook = signal<Book | null>(null);
-  readonly sidebarCollapsed = signal(false);
-  readonly theme = signal<'light' | 'dark'>('dark');
-
-  // Modals state
-  readonly showAuthModal = signal(false);
-  readonly authModalMessage = signal('');
-  readonly showConfirmModal = signal(false);
-  readonly confirmModalConfig = signal<{
-    title: string;
-    description: string;
-    confirmText: string;
-    cancelText: string;
-    isDestructive: boolean;
-    onConfirm: () => void;
-  } | null>(null);
-
-  // Loading/error state
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
 
   // ─── Computed ───────────────────────────────────────────
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
@@ -157,8 +140,8 @@ export class AppStore {
   // ─── Auth ───────────────────────────────────────────────
 
   login(username: string, password: string): void {
-    this.loading.set(true);
-    this.error.set(null);
+    this.ui.loading.set(true);
+    this.ui.error.set(null);
     this.api.login(username, password).subscribe({
       next: (res) => {
         if (isPlatformBrowser(this.platformId)) {
@@ -167,11 +150,11 @@ export class AppStore {
         this.currentUser.set(res.user);
         this.loadFavorites();
         this.loadLoans();
-        this.loading.set(false);
+        this.ui.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.error || 'Credenciales inválidas');
-        this.loading.set(false);
+        this.ui.error.set(err.error?.error || 'Credenciales inválidas');
+        this.ui.loading.set(false);
       },
     });
   }
@@ -187,21 +170,21 @@ export class AppStore {
     genero: string;
     pais: string;
   }): void {
-    this.loading.set(true);
-    this.error.set(null);
+    this.ui.loading.set(true);
+    this.ui.error.set(null);
     this.api.register(data).subscribe({
       next: (res) => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('auth_token', res.token);
         }
         this.currentUser.set(res.user);
-        this.loading.set(false);
+        this.ui.loading.set(false);
       },
       error: (err) => {
         const errors = err.error;
         const firstError = Object.values(errors || {}).flat()[0];
-        this.error.set(String(firstError) || 'Error al registrar');
-        this.loading.set(false);
+        this.ui.error.set(String(firstError) || 'Error al registrar');
+        this.ui.loading.set(false);
       },
     });
   }
@@ -253,68 +236,22 @@ export class AppStore {
     this.availabilityFilter.set(availability);
   }
 
-  toggleSidebar(): void {
-    this.sidebarCollapsed.update((v) => !v);
-  }
-
-  toggleTheme(): void {
-    this.theme.update((t) => (t === 'light' ? 'dark' : 'light'));
-    if (isPlatformBrowser(this.platformId)) {
-      if (this.theme() === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  }
-
-  // ─── Actions ──────────────────────────────────────────────
-
-  requireAuth(action: () => void, message = 'Debes iniciar sesión para usar esta función.'): void {
-    if (this.isAuthenticated()) {
-      action();
-    } else {
-      this.authModalMessage.set(message);
-      this.showAuthModal.set(true);
-    }
-  }
-
-  confirmAction(config: {
-    title: string;
-    description: string;
-    confirmText?: string;
-    cancelText?: string;
-    isDestructive?: boolean;
-    onConfirm: () => void;
-  }): void {
-    this.confirmModalConfig.set({
-      title: config.title,
-      description: config.description,
-      confirmText: config.confirmText || 'Confirmar',
-      cancelText: config.cancelText || 'Cancelar',
-      isDestructive: config.isDestructive || false,
-      onConfirm: () => {
-        config.onConfirm();
-        this.showConfirmModal.set(false);
-      },
-    });
-    this.showConfirmModal.set(true);
-  }
-
   // ─── Favorites ──────────────────────────────────────────
   toggleFavorite(bookId: string | number): void {
-    this.requireAuth(() => {
-      const numId = Number(bookId);
-      if (this.favorites().includes(numId)) {
-        this.api.removeFavorite(numId).subscribe({
-          next: () => this.favorites.update((favs) => favs.filter((id) => id !== numId)),
-        });
-      } else {
-        this.api.addFavorite(numId).subscribe({
-          next: () => this.favorites.update((favs) => [...favs, numId]),
-        });
-      }
-    }, 'Inicia sesión para agregar libros a tus favoritos.');
+    if (!this.isAuthenticated()) {
+      this.ui.openAuthModal('Inicia sesión para agregar libros a tus favoritos.');
+      return;
+    }
+    const numId = Number(bookId);
+    if (this.favorites().includes(numId)) {
+      this.api.removeFavorite(numId).subscribe({
+        next: () => this.favorites.update((favs) => favs.filter((id) => id !== numId)),
+      });
+    } else {
+      this.api.addFavorite(numId).subscribe({
+        next: () => this.favorites.update((favs) => [...favs, numId]),
+      });
+    }
   }
 
   isFavorite(bookId: string | number): boolean {

@@ -28,9 +28,9 @@
       
       <form (submit)="login($event)">
         <div class="p-6 pt-0 space-y-4">
-          @if (localError() || store.error()) {
+          @if (localError() || ui.error()) {
           <div class="bg-destructive/10 text-destructive text-sm p-3 rounded-lg mb-4">
-            {{ localError() || store.error() }}
+            {{ localError() || ui.error() }}
           </div>
           }
           
@@ -67,10 +67,10 @@
         <div class="flex items-center p-6 pt-0 flex-col gap-4">
           <button
             type="submit"
-            [disabled]="store.loading()"
+            [disabled]="ui.loading()"
             class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
           >
-            {{ store.loading() ? 'Cargando...' : 'Iniciar Sesión' }}
+            {{ ui.loading() ? 'Cargando...' : 'Iniciar Sesión' }}
           </button>
           
           <p class="text-sm text-muted-foreground text-center">

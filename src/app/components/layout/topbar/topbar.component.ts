@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { UiStore } from '../../../services/ui.store';
 import { LucideAngularModule, Search, Bell, Sun, Moon, LogOut } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 
@@ -13,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 export class TopbarComponent {
   readonly router = inject(Router);
 
-  constructor(public store: AppStore) {}
+  constructor(public store: AppStore, public ui: UiStore) {}
 
   readonly SearchIcon = Search;
   readonly BellIcon = Bell;
@@ -27,14 +28,16 @@ export class TopbarComponent {
   }
 
   handleNotifications(): void {
-    this.store.requireAuth(() => {
+    if (this.store.isAuthenticated()) {
       // Implement notifications logic later
       alert('Bandeja de notificaciones');
-    }, 'Debes iniciar sesión para ver tus notificaciones.');
+      return;
+    }
+    this.ui.openAuthModal('Debes iniciar sesión para ver tus notificaciones.');
   }
 
   handleLogout(): void {
-    this.store.confirmAction({
+    this.ui.confirmAction({
       title: 'Cerrar sesión',
       description: '¿Estás seguro que deseas cerrar sesión?',
       confirmText: 'Cerrar sesión',

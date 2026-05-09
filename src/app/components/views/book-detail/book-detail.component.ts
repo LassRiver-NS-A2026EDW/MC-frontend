@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { AppStore } from '../../../services/app-store.service';
+import { UiStore } from '../../../services/ui.store';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ArrowLeft, Heart, Star, Calendar, BookOpen, Globe, Building2, LogIn } from 'lucide-angular';
@@ -15,6 +16,7 @@ import { StatusBadgeComponent } from '../../shared/status-badge/status-badge.com
 })
 export class BookDetailComponent {
   readonly store = inject(AppStore);
+  readonly ui = inject(UiStore);
   readonly router = inject(Router);
 
   readonly ArrowLeftIcon = ArrowLeft;
@@ -65,7 +67,7 @@ export class BookDetailComponent {
   handleDeleteReview(): void {
     const review = this.userReview();
     if (review) {
-      this.store.confirmAction({
+      this.ui.confirmAction({
         title: 'Eliminar reseña',
         description: '¿Estás seguro que deseas eliminar esta reseña? Esta acción no se puede deshacer.',
         confirmText: 'Eliminar',
@@ -87,11 +89,13 @@ export class BookDetailComponent {
   handleReserve(): void {
     const book = this.selectedBook;
     if (book) {
-      this.store.requireAuth(() => {
+      if (this.store.isAuthenticated()) {
         // Here we would implement the real reservation logic or call an API endpoint.
         // For now, we could just alert or show a success message.
         alert(`Has reservado "${book.title}" exitosamente.`);
-      }, 'Debes iniciar sesión para reservar un libro.');
+        return;
+      }
+      this.ui.openAuthModal('Debes iniciar sesión para reservar un libro.');
     }
   }
 

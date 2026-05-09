@@ -1,6 +1,7 @@
 import { Component, inject, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
+import { UiStore } from '../../../services/ui.store';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Check, X } from 'lucide-angular';
 
@@ -34,7 +35,7 @@ export class RegisterComponent {
   readonly CheckIcon = Check;
   readonly XIcon = X;
 
-  constructor(public store: AppStore) {
+  constructor(public store: AppStore, public ui: UiStore) {
     effect(() => {
       if (this.store.isAuthenticated()) {
         this.router.navigate(['/home']);
@@ -66,6 +67,8 @@ export class RegisterComponent {
     }
 
     this.localErrors.set([]);
+    this.ui.loading.set(true);
+    this.ui.error.set(null);
     this.store.register({
       username: this.username(),
       email: this.email(),

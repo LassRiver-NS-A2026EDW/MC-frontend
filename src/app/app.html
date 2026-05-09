@@ -15,20 +15,20 @@
 </div>
 
 <app-auth-modal
-  [isOpen]="store.showAuthModal()"
-  [message]="store.authModalMessage()"
-  (onClose)="store.showAuthModal.set(false)"
+  [isOpen]="ui.showAuthModal()"
+  [message]="ui.authModalMessage()"
+  (onClose)="ui.showAuthModal.set(false)"
 ></app-auth-modal>
 
-@if (store.confirmModalConfig(); as config) {
+@if (ui.confirmModalConfig(); as config) {
   <app-confirm-modal
-    [isOpen]="store.showConfirmModal()"
+    [isOpen]="ui.showConfirmModal()"
     [title]="config.title"
     [description]="config.description"
     [confirmText]="config.confirmText"
     [cancelText]="config.cancelText"
     [isDestructive]="config.isDestructive"
     (onConfirm)="config.onConfirm()"
-    (onClose)="store.showConfirmModal.set(false)"
+    (onClose)="ui.showConfirmModal.set(false)"
   ></app-confirm-modal>
 }
