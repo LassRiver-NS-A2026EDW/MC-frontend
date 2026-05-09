@@ -46,4 +46,8 @@ export class LoginComponent {
   goToRegister(): void {
     this.router.navigate(['/register']);
   }
+
+  continueAsGuest(): void {
+    this.router.navigate(['/home']);
+  }
 }
