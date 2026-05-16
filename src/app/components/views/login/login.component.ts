@@ -3,10 +3,23 @@ import { Router } from '@angular/router';
 import { AuthStore } from '../../../services/auth.store';
 import { UiStore } from '../../../services/ui.store';
 import { FormsModule } from '@angular/forms';
+import {
+  LucideAngularModule,
+  User,
+  Lock,
+  LogIn,
+  UserPlus,
+  AlertCircle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -15,6 +28,22 @@ export class LoginComponent {
   username = signal('');
   password = signal('');
   localError = signal('');
+  showPassword = signal(false);
+
+  readonly UserIcon = User;
+  readonly LockIcon = Lock;
+  readonly LogInIcon = LogIn;
+  readonly UserPlusIcon = UserPlus;
+  readonly AlertIcon = AlertCircle;
+  readonly ArrowRightIcon = ArrowRight;
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
+  readonly ShieldIcon = ShieldCheck;
+  readonly SparklesIcon = Sparkles;
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update(v => !v);
+  }
 
   constructor(public auth: AuthStore, public ui: UiStore) {
     // Cuando el usuario se autentique, redirigir a home

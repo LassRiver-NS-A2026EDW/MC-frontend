@@ -1,27 +1,32 @@
-<div
+<aside
   [class.w-20]="ui.sidebarCollapsed()"
   [class.w-64]="!ui.sidebarCollapsed()"
-  class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300"
+  class="h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-500 relative"
 >
+  <!-- Accent vertical line -->
+  <span class="absolute top-0 left-0 h-full w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent pointer-events-none"></span>
+
+  <!-- Header -->
   <div class="border-b border-sidebar-border px-4 py-3 min-h-[72px] flex flex-col justify-center">
     <div class="flex items-center">
       <div
-        class="flex items-center gap-3 overflow-hidden transition-all duration-300"
+        class="flex items-center gap-3 overflow-hidden transition-all duration-500"
         [class.w-0]="ui.sidebarCollapsed()"
         [class.opacity-0]="ui.sidebarCollapsed()"
         [class.w-full]="!ui.sidebarCollapsed()"
       >
-        <div class="flex-shrink-0 bg-primary/10 p-1.5 rounded-xl">
-          <img src="/logo.png" alt="LassRiver NS" class="h-8 w-8 object-contain" />
+        <div class="flex-shrink-0 relative">
+          <div class="absolute inset-0 gradient-brand rounded-xl blur-md opacity-60"></div>
+          <div class="relative bg-primary/10 p-1.5 rounded-xl ring-1 ring-primary/20">
+            <img src="/logo.png" alt="LassRiver NS" class="h-8 w-8 object-contain" />
+          </div>
         </div>
 
         <div class="flex flex-col min-w-0">
-          <span class="text-sm font-bold tracking-tight truncate text-foreground">
-            LassRiver NS
+          <span class="text-sm font-black tracking-tight truncate text-foreground">
+            Lass<span class="text-gradient">River</span> NS
           </span>
-          <span
-            class="text-[10px] font-medium uppercase tracking-widest text-muted-foreground truncate"
-          >
+          <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground truncate">
             Digital Library
           </span>
         </div>
@@ -29,63 +34,101 @@
 
       <button
         (click)="ui.toggleSidebar()"
-        class="p-2 hover:bg-sidebar-accent rounded-xl transition-all duration-200 group relative"
+        class="icon-btn group focus-ring"
         [class.mx-auto]="ui.sidebarCollapsed()"
         [class.ml-auto]="!ui.sidebarCollapsed()"
         title="Alternar menú"
+        aria-label="Alternar menú lateral"
       >
         <lucide-icon
           [img]="MenuIcon"
-          class="h-5 w-5 text-sidebar-foreground group-hover:text-primary transition-colors"
-        >
-        </lucide-icon>
-
+          class="h-5 w-5 transition-transform duration-300"
+          [class.rotate-180]="ui.sidebarCollapsed()"
+        ></lucide-icon>
         @if (ui.sidebarCollapsed()) {
-          <span
-            class="absolute right-0 top-0 block h-2 w-2 rounded-full bg-primary ring-2 ring-background"
-          ></span>
+          <span class="dot-indicator"></span>
         }
       </button>
     </div>
   </div>
 
-  <nav class="flex-1 p-4 space-y-2">
+  <!-- Nav -->
+  <nav class="flex-1 p-3 space-y-1 custom-scroll overflow-y-auto" aria-label="Navegación principal">
     @for (item of navItems; track item.id) {
       @if (canAccess(item.roles)) {
         <button
           (click)="navigate(item.id)"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
-          [class.bg-sidebar-primary]="isActive(item.id)"
+          [attr.aria-current]="isActive(item.id) ? 'page' : null"
+          class="group relative w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 focus-ring"
           [class.text-sidebar-primary-foreground]="isActive(item.id)"
           [class.text-sidebar-foreground]="!isActive(item.id)"
           [class.hover:bg-sidebar-accent]="!isActive(item.id)"
-          [class.shadow-sm]="isActive(item.id)"
           [class.justify-center]="ui.sidebarCollapsed()"
         >
-          <lucide-icon [img]="item.icon" class="h-5 w-5 shrink-0"></lucide-icon>
+          <!-- Indicador activo lateral -->
+          @if (isActive(item.id)) {
+            <span class="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-1 rounded-r-full gradient-brand animate-fade-up"></span>
+            <span class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/15 via-primary/5 to-transparent"></span>
+          }
+
+          <span
+            class="relative h-9 w-9 flex items-center justify-center rounded-lg transition-all duration-300 shrink-0"
+            [class.bg-primary]="isActive(item.id)"
+            [class.text-primary-foreground]="isActive(item.id)"
+            [class.shadow-lg]="isActive(item.id)"
+            [class.bg-transparent]="!isActive(item.id)"
+            [class.group-hover:bg-primary/10]="!isActive(item.id)"
+            [class.group-hover:text-primary]="!isActive(item.id)"
+            [class.group-hover:scale-110]="!isActive(item.id)"
+          >
+            <lucide-icon [img]="item.icon" class="h-5 w-5"></lucide-icon>
+          </span>
+
           @if (!ui.sidebarCollapsed()) {
-            <span>{{ item.label }}</span>
+            <span class="relative font-medium text-sm flex-1 text-left">{{ item.label }}</span>
+            @if (isActive(item.id)) {
+              <lucide-icon [img]="ChevronRightIcon" class="relative h-4 w-4 text-primary animate-fade-up"></lucide-icon>
+            }
+          }
+
+          <!-- Tooltip cuando está colapsado -->
+          @if (ui.sidebarCollapsed()) {
+            <span class="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 rounded-lg bg-foreground text-background text-xs font-medium whitespace-nowrap opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 shadow-lg z-50">
+              {{ item.label }}
+            </span>
           }
         </button>
       }
     }
   </nav>
 
-  @if (!ui.sidebarCollapsed() && auth.currentUser()) {
-    <div class="p-4 border-t border-sidebar-border">
-      <div class="flex items-center gap-3 px-4 py-3 bg-sidebar-accent rounded-lg">
-        <div
-          class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
-        >
-          {{ getUserInitial() }}
+  <!-- Footer perfil -->
+  @if (auth.currentUser()) {
+    <div class="p-3 border-t border-sidebar-border">
+      <button
+        (click)="navigate('profile')"
+        class="w-full group flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-sidebar-accent transition-all duration-200 focus-ring"
+        [class.justify-center]="ui.sidebarCollapsed()"
+        title="Ver perfil"
+      >
+        <div class="relative shrink-0">
+          <div class="h-10 w-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold shadow-[var(--shadow-brand)]">
+            {{ getUserInitial() }}
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success ring-2 ring-sidebar"></span>
         </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-sidebar-foreground truncate">
-            {{ auth.currentUser()?.name }}
-          </p>
-          <p class="text-xs text-muted-foreground truncate">{{ auth.currentUser()?.role }}</p>
-        </div>
-      </div>
+        @if (!ui.sidebarCollapsed()) {
+          <div class="flex-1 min-w-0 text-left">
+            <p class="text-sm font-semibold text-sidebar-foreground truncate">
+              {{ auth.currentUser()?.name }}
+            </p>
+            <p class="text-[11px] text-muted-foreground truncate uppercase tracking-wider">
+              {{ auth.currentUser()?.role }}
+            </p>
+          </div>
+          <lucide-icon [img]="ChevronRightIcon" class="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"></lucide-icon>
+        }
+      </button>
     </div>
   }
-</div>
+</aside>

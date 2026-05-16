@@ -1,3 +1,4 @@
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ getRoleConfig().class }}">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all hover:scale-105 {{ getRoleConfig().class }}">
+  <lucide-icon [img]="getRoleConfig().icon" class="h-3 w-3"></lucide-icon>
   {{ getRoleConfig().label }}
 </span>

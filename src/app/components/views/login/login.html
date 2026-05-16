@@ -1,105 +1,175 @@
 <div class="min-h-screen flex items-center justify-center relative overflow-hidden p-4">
-  <!-- Patrón de fondo inspirado en el logo -->
-  <div class="absolute inset-0 bg-gradient-to-br from-background via-surface to-primary/10">
-    <div class="absolute inset-0 opacity-5">
-      <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="wave-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-            <path d="M0 50 Q 25 25, 50 50 T 100 50" stroke="currentColor" stroke-width="0.5" fill="none" class="text-primary"/>
-            <path d="M0 60 Q 25 35, 50 60 T 100 60" stroke="currentColor" stroke-width="0.5" fill="none" class="text-secondary"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#wave-pattern)" />
-      </svg>
-    </div>
+  <!-- Fondo: gradiente brand + capa de ondas SVG con motion sutil -->
+  <div class="absolute inset-0 bg-gradient-to-br from-background via-surface to-primary/15"></div>
+  <div class="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl animate-float"></div>
+  <div class="absolute -bottom-32 -right-32 h-[28rem] w-[28rem] rounded-full bg-accent/15 blur-3xl animate-float" style="animation-delay:1.5s"></div>
+
+  <div class="absolute inset-0 opacity-[0.07] pointer-events-none">
+    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <pattern id="wave-pattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+          <path d="M0 60 Q 30 30, 60 60 T 120 60" stroke="currentColor" stroke-width="0.7" fill="none" class="text-primary"/>
+          <path d="M0 80 Q 30 50, 60 80 T 120 80" stroke="currentColor" stroke-width="0.7" fill="none" class="text-accent"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#wave-pattern)" />
+    </svg>
   </div>
 
-  <div class="w-full max-w-md relative z-10">
+  <div class="w-full max-w-md relative z-10 animate-fade-up">
+    <!-- Encabezado con logo SVG abstracto -->
     <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-foreground mb-2">LassRiver NS</h1>
-      <p class="text-muted-foreground">Biblioteca Digital Premium</p>
+      <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-brand shadow-[var(--shadow-brand)] mb-4 animate-pulse-ring">
+        <svg viewBox="0 0 24 24" fill="none" class="h-9 w-9 text-white" aria-hidden="true">
+          <path d="M4 4h7a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M14 7a3 3 0 0 1 3-3h3v13a3 3 0 0 1-3 3h-3V7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M4 17c2-1.5 5-1.5 7 0M14 17c2-1.5 5-1.5 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="text-4xl font-black tracking-tight text-foreground">
+        Lass<span class="text-gradient">River</span> NS
+      </h1>
+      <p class="text-muted-foreground text-sm mt-2 flex items-center justify-center gap-2">
+        <lucide-icon [img]="SparklesIcon" class="h-4 w-4 text-accent"></lucide-icon>
+        Biblioteca Digital Premium
+      </p>
     </div>
 
-    <div class="rounded-xl border bg-card text-card-foreground shadow">
-      <div class="flex flex-col space-y-1.5 p-6">
-        <h3 class="font-semibold leading-none tracking-tight">Iniciar Sesión</h3>
-        <p class="text-sm text-muted-foreground">Accede a tu cuenta para continuar</p>
-      </div>
-      
-      <form (submit)="login($event)">
-        <div class="p-6 pt-0 space-y-4">
-          @if (localError() || ui.error()) {
-          <div class="bg-destructive/10 text-destructive text-sm p-3 rounded-lg mb-4">
-            {{ localError() || ui.error() }}
+    <!-- Card del formulario -->
+    <div class="rounded-2xl border border-border/60 bg-card/95 backdrop-blur-xl text-card-foreground shadow-2xl overflow-hidden">
+      <div class="h-1 gradient-brand"></div>
+
+      <div class="p-6">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <lucide-icon [img]="LogInIcon" class="h-5 w-5"></lucide-icon>
           </div>
-          }
-          
-          <div class="space-y-2">
-            <label for="username" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Usuario
-            </label>
-            <input
-              id="username"
-              type="text"
-              [ngModel]="username()"
-              (ngModelChange)="username.set($event)"
-              name="username"
-              placeholder="mi.usuario"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-          <div class="space-y-2">
-            <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              [ngModel]="password()"
-              (ngModelChange)="password.set($event)"
-              name="password"
-              placeholder="••••••••"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
+          <div>
+            <h3 class="font-semibold leading-tight tracking-tight">Iniciar Sesión</h3>
+            <p class="text-xs text-muted-foreground">Accede para continuar tu lectura</p>
           </div>
         </div>
-        
-        <div class="flex items-center p-6 pt-0 flex-col gap-4">
+      </div>
+
+      <form (submit)="login($event)">
+        <div class="px-6 pb-2 space-y-4">
+          @if (localError() || ui.error()) {
+            <div class="flex items-start gap-2 bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xl animate-fade-up" role="alert">
+              <lucide-icon [img]="AlertIcon" class="h-4 w-4 mt-0.5 shrink-0"></lucide-icon>
+              <span>{{ localError() || ui.error() }}</span>
+            </div>
+          }
+
+          <div class="space-y-2">
+            <label for="username" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <lucide-icon [img]="UserIcon" class="h-3.5 w-3.5"></lucide-icon>
+              Usuario
+            </label>
+            <div class="relative">
+              <lucide-icon [img]="UserIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"></lucide-icon>
+              <input
+                id="username"
+                type="text"
+                [ngModel]="username()"
+                (ngModelChange)="username.set($event)"
+                name="username"
+                autocomplete="username"
+                placeholder="mi.usuario"
+                class="input-modern"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <lucide-icon [img]="LockIcon" class="h-3.5 w-3.5"></lucide-icon>
+              Contraseña
+            </label>
+            <div class="relative">
+              <lucide-icon [img]="LockIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"></lucide-icon>
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                [ngModel]="password()"
+                (ngModelChange)="password.set($event)"
+                name="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                class="input-modern pr-10"
+              />
+              <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                class="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+              >
+                <lucide-icon [img]="showPassword() ? EyeOffIcon : EyeIcon" class="h-4 w-4"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center p-6 pt-4 flex-col gap-3">
           <button
             type="submit"
             [disabled]="ui.loading()"
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+            class="btn-primary w-full group"
           >
-            {{ ui.loading() ? 'Cargando...' : 'Iniciar Sesión' }}
+            @if (ui.loading()) {
+              <span class="spinner"></span>
+              <span>Verificando…</span>
+            } @else {
+              <lucide-icon [img]="LogInIcon" class="h-4 w-4"></lucide-icon>
+              <span>Iniciar Sesión</span>
+              <lucide-icon [img]="ArrowRightIcon" class="h-4 w-4 transition-transform group-hover:translate-x-1"></lucide-icon>
+            }
           </button>
 
           <button
             type="button"
             (click)="continueAsGuest()"
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full"
+            class="btn-ghost w-full"
           >
+            <lucide-icon [img]="SparklesIcon" class="h-4 w-4"></lucide-icon>
             Continuar como invitado
           </button>
-          
+
+          <div class="flex items-center w-full gap-3 my-1">
+            <div class="h-px flex-1 bg-border"></div>
+            <span class="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">o</span>
+            <div class="h-px flex-1 bg-border"></div>
+          </div>
+
           <p class="text-sm text-muted-foreground text-center">
             ¿No tienes cuenta?
             <button
               type="button"
               (click)="goToRegister()"
-              class="text-primary hover:underline"
+              class="text-primary font-semibold hover:underline inline-flex items-center gap-1"
             >
               Regístrate aquí
+              <lucide-icon [img]="UserPlusIcon" class="h-3.5 w-3.5"></lucide-icon>
             </button>
           </p>
-          
-          <div class="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-lg w-full">
-            <p class="font-medium mb-1">Usuarios de prueba (contraseña: LassRiver2026!):</p>
-            <p>Usuario: daniel.lasso</p>
-            <p>Bibliotecaria: ana.rivera</p>
-            <p>Admin: admin</p>
+
+          <div class="w-full mt-2 p-4 rounded-xl border border-accent/20 bg-accent/5">
+            <div class="flex items-center gap-2 mb-2">
+              <lucide-icon [img]="ShieldIcon" class="h-4 w-4 text-accent"></lucide-icon>
+              <p class="text-xs font-bold uppercase tracking-wider text-accent">Usuarios de prueba</p>
+            </div>
+            <p class="text-xs text-muted-foreground mb-2">Contraseña: <code class="text-foreground font-mono bg-muted px-1.5 py-0.5 rounded">LassRiver2026!</code></p>
+            <ul class="text-xs text-muted-foreground space-y-0.5">
+              <li><span class="text-foreground font-medium">daniel.lasso</span> — Usuario</li>
+              <li><span class="text-foreground font-medium">ana.rivera</span> — Bibliotecaria</li>
+              <li><span class="text-foreground font-medium">admin</span> — Administrador</li>
+            </ul>
           </div>
         </div>
       </form>
     </div>
+
+    <p class="text-center text-[11px] text-muted-foreground mt-6 tracking-wider">
+      © 2026 LassRiver NS · Modelos de Computación
+    </p>
   </div>
 </div>

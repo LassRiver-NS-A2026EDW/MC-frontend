@@ -1,45 +1,86 @@
-<div class="h-16 bg-card border-b border-border flex items-center justify-between px-6 sticky top-0 z-10">
+<header class="h-16 bg-card/85 backdrop-blur-xl border-b border-border flex items-center justify-between px-6 sticky top-0 z-20">
+  <!-- Búsqueda contextual -->
   <div class="flex items-center gap-4 flex-1 max-w-2xl">
     @if (router.url.includes('/catalog')) {
-    <div class="relative flex-1">
-      <lucide-icon [img]="SearchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></lucide-icon>
-      <input
-        type="text"
-        placeholder="Buscar por título o autor..."
-        [value]="store.searchQuery()"
-        (input)="onSearchChange($event)"
-        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10"
-      />
-    </div>
+      <div class="relative flex-1 group">
+        <lucide-icon
+          [img]="SearchIcon"
+          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary pointer-events-none"
+        ></lucide-icon>
+        <input
+          type="text"
+          placeholder="Buscar por título o autor..."
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="input-modern"
+          aria-label="Buscar en catálogo"
+        />
+        @if (store.searchQuery()) {
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-widest font-bold text-primary animate-fade-in">
+            ⏎ Buscando
+          </span>
+        }
+      </div>
+    } @else {
+      <div class="hidden md:flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-muted-foreground font-bold">
+        <span class="h-1.5 w-1.5 rounded-full bg-success animate-pulse-ring"></span>
+        Conectado · LassRiver NS
+      </div>
     }
   </div>
 
-  <div class="flex items-center gap-2">
+  <!-- Acciones -->
+  <div class="flex items-center gap-1">
+    <!-- Toggle tema con icono que rota -->
     <button
       (click)="ui.toggleTheme()"
-      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+      class="icon-btn focus-ring"
+      [attr.aria-label]="ui.theme() === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+      title="Alternar tema"
     >
-      @if (ui.theme() === 'dark') {
-        <lucide-icon [img]="SunIcon" class="h-5 w-5"></lucide-icon>
-      } @else {
-        <lucide-icon [img]="MoonIcon" class="h-5 w-5"></lucide-icon>
+      <span class="relative h-5 w-5 block">
+        <lucide-icon
+          [img]="SunIcon"
+          class="absolute inset-0 h-5 w-5 transition-all duration-500"
+          [class.opacity-0]="ui.theme() !== 'dark'"
+          [class.rotate-90]="ui.theme() !== 'dark'"
+          [class.scale-50]="ui.theme() !== 'dark'"
+        ></lucide-icon>
+        <lucide-icon
+          [img]="MoonIcon"
+          class="absolute inset-0 h-5 w-5 transition-all duration-500"
+          [class.opacity-0]="ui.theme() === 'dark'"
+          [class.-rotate-90]="ui.theme() === 'dark'"
+          [class.scale-50]="ui.theme() === 'dark'"
+        ></lucide-icon>
+      </span>
+    </button>
+
+    <!-- Notificaciones con dot indicator -->
+    <button
+      (click)="handleNotifications()"
+      class="icon-btn focus-ring"
+      aria-label="Notificaciones"
+      title="Notificaciones"
+    >
+      <lucide-icon [img]="BellIcon" class="h-5 w-5"></lucide-icon>
+      @if (auth.isAuthenticated()) {
+        <span class="dot-indicator"></span>
       }
     </button>
 
-    <button
-      (click)="handleNotifications()"
-      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
-    >
-      <lucide-icon [img]="BellIcon" class="h-5 w-5"></lucide-icon>
-    </button>
-
+    <!-- Separador -->
     @if (auth.isAuthenticated()) {
-    <button
-      (click)="handleLogout()"
-      class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
-    >
-      <lucide-icon [img]="LogOutIcon" class="h-5 w-5"></lucide-icon>
-    </button>
+      <span class="mx-2 h-6 w-px bg-border"></span>
+
+      <button
+        (click)="handleLogout()"
+        class="icon-btn focus-ring hover:!bg-destructive/10 hover:!text-destructive"
+        aria-label="Cerrar sesión"
+        title="Cerrar sesión"
+      >
+        <lucide-icon [img]="LogOutIcon" class="h-5 w-5"></lucide-icon>
+      </button>
     }
   </div>
-</div>
+</header>

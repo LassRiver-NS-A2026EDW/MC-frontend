@@ -4,18 +4,23 @@
 
 :root {
   --font-size: 16px;
-  --primary-navy: #182858;
+  --primary-navy: #142654;
   --deep-blue: #183868;
-  --river-cyan: #1898a8;
+  --river-cyan: #14a7bf;
   --aqua-blue: #1888a8;
-  --leaf-green: #68b848;
+  --leaf-green: #5ec73c;
   --fresh-green: #78b848;
-  --background-dark: #07111f;
+  --gold: #f5b400;
+  --rose: #f43f5e;
+  --background-dark: #060e1a;
   --surface: #0e1a2f;
-  --surface-light: #f7fafc;
+  --surface-2: #142340;
+  --surface-light: #f4f7fb;
   --text-main: #eaf2ff;
   --text-muted: #8ea4c8;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow-brand: 0 18px 40px -18px rgba(20, 167, 191, 0.45);
+  --shadow-card: 0 10px 30px -12px rgba(8, 18, 38, 0.18);
 
   --background: var(--surface-light);
   --foreground: var(--primary-navy);
@@ -33,11 +38,14 @@
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
+  --success: #16a34a;
+  --warning: var(--gold);
+  --info: #0ea5e9;
+  --border: rgba(15, 30, 60, 0.10);
   --input: transparent;
   --input-background: #f1f5f9;
   --ring: var(--river-cyan);
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --sidebar: #ffffff;
   --sidebar-foreground: var(--primary-navy);
   --sidebar-primary: var(--river-cyan);
@@ -52,6 +60,11 @@
   --background: var(--background-dark);
   --foreground: var(--text-main);
   --card: var(--surface);
+  --success: #22c55e;
+  --warning: var(--gold);
+  --info: #38bdf8;
+  --shadow-brand: 0 18px 50px -16px rgba(20, 167, 191, 0.55);
+  --shadow-card: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
   --card-foreground: var(--text-main);
   --popover: var(--surface);
   --popover-foreground: var(--text-main);
@@ -96,6 +109,11 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-gold: var(--gold);
+  --color-rose: var(--rose);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-background: var(--input-background);
@@ -144,4 +162,216 @@
     font-weight: 500;
     line-height: 1.5;
   }
+  body {
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+    color: var(--foreground);
+  }
+}
+
+/* ============ Animaciones globales reutilizables ============ */
+@keyframes lr-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lr-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes lr-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes lr-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes lr-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes lr-gradient-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes lr-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 12px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes lr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============ Utilidades reutilizables ============ */
+.animate-fade-up   { animation: lr-fade-up 0.55s both; }
+.animate-fade-in   { animation: lr-fade-in 0.6s both; }
+.animate-scale-in  { animation: lr-scale-in 0.25s both; }
+.animate-float     { animation: lr-float 4s ease-in-out infinite; }
+.animate-pulse-ring{ animation: lr-pulse-ring 2.2s ease-out infinite; }
+
+.lift-hover {
+  transition: transform 0.35s, box-shadow 0.35s, border-color 0.35s;
+}
+.lift-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+.shimmer-bg {
+  background-color: var(--muted);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    color-mix(in oklab, var(--foreground) 8%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 400px 100%;
+  background-repeat: no-repeat;
+  animation: lr-shimmer 1.4s infinite linear;
+}
+
+.gradient-brand {
+  background: linear-gradient(
+    120deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 55%, var(--accent)) 50%,
+    var(--accent) 100%
+  );
+  background-size: 200% 200%;
+  animation: lr-gradient-flow 8s ease infinite;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  border-color: var(--ring);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-foreground);
+  background: linear-gradient(120deg, var(--primary), color-mix(in oklab, var(--primary) 55%, var(--accent)));
+  box-shadow: var(--shadow-brand);
+  transition: transform 0.25s, box-shadow 0.25s, filter 0.25s;
+}
+.btn-primary:hover  { transform: translateY(-1px); filter: brightness(1.05); }
+.btn-primary:active { transform: translateY(0) scale(0.98); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--border);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover {
+  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  border-color: color-mix(in oklab, var(--primary) 35%, transparent);
+  color: var(--primary);
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: lr-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+.input-modern {
+  width: 100%;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: var(--input-background);
+  border: 1px solid var(--border);
+  padding: 0 0.875rem 0 2.5rem;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.input-modern::placeholder { color: var(--muted-foreground); }
+.input-modern:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent);
+  background: color-mix(in oklab, var(--input-background) 92%, var(--primary));
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 0.75rem;
+  color: var(--foreground);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.icon-btn:hover {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+.icon-btn:active { transform: scale(0.94); }
+
+.dot-indicator {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background: var(--rose);
+  box-shadow: 0 0 0 2px var(--card);
+  animation: lr-pulse-ring 2.2s ease-out infinite;
+}
+
+.custom-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--primary) 55%, transparent);
+  background-clip: padding-box;
 }

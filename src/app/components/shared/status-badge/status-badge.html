@@ -1,3 +1,9 @@
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ getConfig().class }}">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all hover:scale-105 {{ getConfig().class }}">
+  <span class="relative inline-flex items-center justify-center">
+    @if (getConfig().pulse) {
+      <span class="absolute inline-flex h-3 w-3 rounded-full bg-current opacity-30 animate-pulse-ring"></span>
+    }
+    <lucide-icon [img]="getConfig().icon" class="relative h-3 w-3"></lucide-icon>
+  </span>
   {{ getConfig().label }}
 </span>

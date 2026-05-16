@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AppStore } from '../../../services/app-store.service';
 import { AuthStore } from '../../../services/auth.store';
 import { UiStore } from '../../../services/ui.store';
-import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, LayoutDashboard, Menu } from 'lucide-angular';
+import { LucideAngularModule, Home, BookOpen, Heart, MessageSquare, User, LayoutDashboard, Menu, ChevronRight } from 'lucide-angular';
 
 @Component({
   selector: 'app-sidebar',
@@ -17,6 +17,7 @@ export class SidebarComponent {
   constructor(public store: AppStore, public auth: AuthStore, public ui: UiStore) {}
 
   readonly MenuIcon = Menu;
+  readonly ChevronRightIcon = ChevronRight;
 
   navItems = [
     { id: 'home', label: 'Inicio', icon: Home, roles: ['all'] },
